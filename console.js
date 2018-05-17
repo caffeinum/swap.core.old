@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 const { setupEnv, SwapApp } = require('./lib')
 
 const Ipfs = require('ipfs')
@@ -10,12 +12,14 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://rinkeby.infura.io
 const LocalStorage = require('node-localstorage').LocalStorage
 const localStorage = new LocalStorage('./storage')
 
+const ethPrivateKey = process.env.ETH_KEY || localStorage.getItem('ethPrivateKey')
+const btcPrivateKey = process.env.BTC_KEY || localStorage.getItem('btcPrivateKey')
 
-const ethPrivateKey = localStorage.getItem('ethPrivateKey') || ethPrivKey
-const btcPrivateKey = localStorage.getItem('btcPrivateKey') || btcPrivKey
+const eth = web3.eth.accounts.wallet.add(ethPrivateKey)
+const btc = new bitcoin.ECPair.fromWIF(btcPrivateKey, bitcoin.networks.testnet)
 
-const eth = web3.eth.accounts.wallet.add(ethPrivKey)
-const btc = new bitcoin.ECPair.fromWIF(btcPrivKey, bitcoin.networks.testnet)
+localStorage.setItem('ethPrivateKey', ethPrivateKey)
+localStorage.setItem('btcPrivateKey', btcPrivateKey)
 
 const env = { Ipfs, IpfsRoom, bitcoinJs: bitcoin, web3, localStorage }
 setupEnv(env)
