@@ -5,8 +5,10 @@ const IpfsRoom = require('ipfs-pubsub-room')
 const bitcoinJs = require('bitcoinjs-lib')
 const web3 = require('web3')
 
-const env = { Ipfs, IpfsRoom, bitcoinJs, web3 }
+const LocalStorage = require('node-localstorage').LocalStorage
+const localStorage = new LocalStorage('./storage')
 
+const env = { Ipfs, IpfsRoom, bitcoinJs, web3, localStorage }
 setupEnv(env)
 
 const app = new SwapApp({
@@ -24,6 +26,7 @@ const app = new SwapApp({
   config: {
     ipfs: {
       swarm: [
+        '/dns4/star.wpmix.net/tcp/443/wss/p2p-websocket-star',
         '/dns4/ws-star.discovery.libp2p.io/tcp/443/wss/p2p-websocket-star'
       ]
     }
@@ -60,18 +63,16 @@ function main() {
 
   console.log('swaps', app.getOrders())
 
-  const data = {
-    buyCurrency: 'ETH',
-    sellCurrency: 'BTC',
-    buyAmount: 1,
-    sellAmount: 0.1,
-  }
-
-  app.createOrder(data)
-
-  // console.log('order', order)
-
-  app.createSwap(0)
+  // const data = {
+  //   buyCurrency: 'ETH',
+  //   sellCurrency: 'BTC',
+  //   buyAmount: 1,
+  //   sellAmount: 0.1,
+  // }
+  //
+  // app.createOrder(data)
+  //
+  // app.createSwap(0)
 
   console.log('swaps', app.getOrders())
 
