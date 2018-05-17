@@ -20,6 +20,8 @@ const btc = new bitcoin.ECPair.fromWIF(btcPrivKey, bitcoin.networks.testnet)
 const env = { Ipfs, IpfsRoom, bitcoinJs: bitcoin, web3, localStorage }
 setupEnv(env)
 
+console.log('\033[2J');
+
 const app = global.app = new SwapApp({
   me: {
     reputation: 33,
@@ -34,10 +36,15 @@ const app = global.app = new SwapApp({
   },
   config: {
     ipfs: {
-      swarm: [
-        '/dns4/star.wpmix.net/tcp/443/wss/p2p-websocket-star',
-        // '/dns4/ws-star.discovery.libp2p.io/tcp/443/wss/p2p-websocket-star',
-      ]
+      EXPERIMENTAL: {
+        pubsub: true,
+      },
+      Addresses: {
+        Swarm: [
+          // '/dns4/ws-star.discovery.libp2p.io/tcp/443/wss/p2p-websocket-star',
+          '/dns4/star.wpmix.net/tcp/443/wss/p2p-websocket-star',
+        ],
+      },
     }
   }
 })
@@ -60,15 +67,15 @@ app.on('user offline', (peer) => {
 })
 
 app.on('new orders', (swaps) => {
-  console.log('new orders', swaps)
+  console.log('new orders', swaps.map(swapToString))
 })
 
 app.on('new order', (swap) => {
-  console.log('new order', swap)
+  console.log('new order', swapToString(swap))
 })
 
 app.on('remove order', (swap) => {
-  console.log('remove order', swap)
+  console.log('remove order', swapToString(swap))
 })
 
 app.on('new order request', ({ swapId, participant }) => {
@@ -78,12 +85,18 @@ app.on('new order request', ({ swapId, participant }) => {
   })
 })
 
-setInterval( () => main(), 5000 )
+const swapToString = (swap) => [
+  ( swap.isMy ? "my" : "-" ),
+  swap.buyAmount, swap.buyCurrency,
+  '-',
+  swap.sellAmount, swap.sellCurrency
+].join(' ')
+
 
 function main() {
-  let swaps = app.getOrders()
+  let swaps = app.getOrders().map(swapToString).join('\n')
 
-  console.log('swaps', app.getOrders())
+  console.log('swaps', swaps)
 
   // const data = {
   //   buyCurrency: 'ETH',
