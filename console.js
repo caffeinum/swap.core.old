@@ -2,6 +2,7 @@ require('dotenv').config()
 
 const { setupEnv, SwapApp } = require('./lib')
 
+const prompt = require('./prompt')
 const Ipfs = require('ipfs')
 const IpfsRoom = require('ipfs-pubsub-room')
 const bitcoin = require('bitcoinjs-lib')
@@ -84,27 +85,42 @@ app.on('remove order', (swap) => {
 })
 
 app.on('new order request', ({ swapId, participant }) => {
-  console.error(`user ${participant.peer} requesting swap`, {
-    swap: app.orderCollection.getByKey(swapId),
-    participant,
-  })
+
+  let order = app.orderCollection.getByKey(swapId)
+
+  console.log('–––––req–––––')
+  console.error(`user ${participant.peer} requesting swap`)
+  console.log(swapToString(order))
+  console.log('–––––––––––––')
+
+  prompt('Start? [y/n]  ')
+  .then( y => y == 'y')
+  .then( accepted => {
+    if (accepted) {
+      console.log('swap', order, participant)
+      order.acceptRequest(participant.peer)
+    }
+  }
+  )
 })
 
 const swapToString = (swap) => [
-  swap.id,
+  swap.id.split('-').pop(),
   ( swap.isMy ? 'my' : '- ' ),
-  swap.buyAmount, swap.buyCurrency.padEnd(10),
+  swap.buyAmount.toString().padStart('10'), swap.buyCurrency.padEnd(10),
   '→',
-  swap.sellAmount, swap.sellCurrency.padEnd(10)
+  swap.sellAmount.toString().padStart('10'), swap.sellCurrency.padEnd(10),
+  'REP', swap.owner.reputation,
+  '[', swap.owner.peer.slice(0,5), '...', swap.owner.peer.slice(-10), ']'
 ].join(' ')
 
 const updateOrders = () => {
   orders = app.getOrders()
 
   console.log('[SWAPS]:')
-  console.log('––––––––––––––––')
+  console.log('–––––––––––––')
   console.log(orders.map(swapToString).join('\n'))
-  console.log('––––––––––––––––')
+  console.log('–––––––––––––')
 }
 
 app.on('new orders', updateOrders)
@@ -112,6 +128,6 @@ app.on('new order', updateOrders)
 app.on('remove order', updateOrders)
 app.on('swap update', updateOrders)
 
-function main() {
+async function main() {
 
 }
