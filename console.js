@@ -24,9 +24,11 @@ localStorage.setItem('btcPrivateKey', btcPrivateKey)
 const env = { Ipfs, IpfsRoom, bitcoinJs: bitcoin, web3, localStorage }
 setupEnv(env)
 
+let orders = []
+
 console.log('\033[2J');
 
-const app = global.app = new SwapApp({
+const app = new SwapApp({
   me: {
     reputation: 33,
     eth: {
@@ -45,10 +47,9 @@ const app = global.app = new SwapApp({
       },
       Addresses: {
         Swarm: [
-          // '/dns4/ws-star.discovery.libp2p.io/tcp/443/wss/p2p-websocket-star',
           '/dns4/star.wpmix.net/tcp/443/wss/p2p-websocket-star',
-        ],
-      },
+        ]
+      }
     }
   }
 })
@@ -71,15 +72,15 @@ app.on('user offline', (peer) => {
 })
 
 app.on('new orders', (swaps) => {
-  console.log('new orders', swaps.map(swapToString))
+  console.log('new orders')
 })
 
 app.on('new order', (swap) => {
-  console.log('new order', swapToString(swap))
+  console.log('new order')
 })
 
 app.on('remove order', (swap) => {
-  console.log('remove order', swapToString(swap))
+  console.log('remove order')
 })
 
 app.on('new order request', ({ swapId, participant }) => {
@@ -90,29 +91,27 @@ app.on('new order request', ({ swapId, participant }) => {
 })
 
 const swapToString = (swap) => [
-  ( swap.isMy ? "my" : "-" ),
-  swap.buyAmount, swap.buyCurrency,
-  '-',
-  swap.sellAmount, swap.sellCurrency
+  swap.id,
+  ( swap.isMy ? 'my' : '- ' ),
+  swap.buyAmount, swap.buyCurrency.padEnd(10),
+  '→',
+  swap.sellAmount, swap.sellCurrency.padEnd(10)
 ].join(' ')
 
+const updateOrders = () => {
+  orders = app.getOrders()
+
+  console.log('[SWAPS]:')
+  console.log('––––––––––––––––')
+  console.log(orders.map(swapToString).join('\n'))
+  console.log('––––––––––––––––')
+}
+
+app.on('new orders', updateOrders)
+app.on('new order', updateOrders)
+app.on('remove order', updateOrders)
+app.on('swap update', updateOrders)
 
 function main() {
-  let swaps = app.getOrders().map(swapToString).join('\n')
-
-  console.log('swaps', swaps)
-
-  // const data = {
-  //   buyCurrency: 'ETH',
-  //   sellCurrency: 'BTC',
-  //   buyAmount: 1,
-  //   sellAmount: 0.1,
-  // }
-  //
-  // app.createOrder(data)
-  //
-  // app.createSwap(0)
-
-  // console.log('swaps', app.getOrders())
 
 }
