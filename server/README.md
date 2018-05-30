@@ -13,52 +13,47 @@ To use your own wallet, place `.env` file in the root with your keys:
 
 1. Install needed packages
 
-
-    npm i
+  `npm i`
 
 2. Run server with
 
+  `npm run server`
 
-    npm run server
+  or
 
-or
-
-
-    npm run server-dev
+  `npm run server-dev`
 
 3. List available orders
 
+  ```
+  GET /orders
 
-    GET /orders
+  ->
 
-    ->
-
-    [ ...
-    {
-        "id": "QmWM4qK2jhQ3cyXpKF7qsKBa2WiVSprqGYhsEX9bxcPdZo-1527476621240",
-        "isMy": false,
-        "buyAmount": 1,
-        "buyCurrency": "ETHTOKEN",
-        "sellAmount": 0.001,
-        "sellCurrency": "BTC",
-        "owner": {
-            "peer": "QmWM4qK2jhQ3cyXpKF7qsKBa2WiVSprqGYhsEX9bxcPdZo",
-            "reputation": 10
-        }
-    },
-    ... ]
+  [ ...
+  {
+      "id": "QmWM4qK2jhQ3cyXpKF7qsKBa2WiVSprqGYhsEX9bxcPdZo-1527476621240",
+      "isMy": false,
+      "buyAmount": 1,
+      "buyCurrency": "ETHTOKEN",
+      "sellAmount": 0.001,
+      "sellCurrency": "BTC",
+      "owner": {
+          "peer": "QmWM4qK2jhQ3cyXpKF7qsKBa2WiVSprqGYhsEX9bxcPdZo",
+          "reputation": 10
+      }
+  },
+  ... ]
+  ```
 
 2. Extract an ID, e.g. `"QmWM4qK2jhQ3cyXpKF7qsKBa2WiVSprqGYhsEX9bxcPdZo-1527476621240"`
 
 3. Start Swap:
-
-
-    GET /orders/:id/start-swap
+  `GET /orders/:id/start-swap`
 
 4. Wait for acceptance from another peer, checking status:
 
-
-    GET /orders/:id/status
+  `GET /orders/:id/status`
 
 5. Follow steps to finish swap:
   - exchange signatures
