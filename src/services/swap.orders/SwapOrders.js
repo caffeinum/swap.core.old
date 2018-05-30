@@ -45,7 +45,7 @@ class SwapOrders extends aggregation(ServiceInterface, Collection) {
           'isProcessing',
         ))
 
-        console.log(`Send my orders to ${peer}`, myOrders)
+        console.log(`Send my orders to ${peer}`, myOrders.length)
 
         SwapApp.services.room.sendMessage(peer, [
           {
@@ -74,7 +74,7 @@ class SwapOrders extends aggregation(ServiceInterface, Collection) {
         !this.getByKey(id) && peer === fromPeer
       ))
 
-      console.log(`Receive orders from ${fromPeer}`, filteredOrders)
+      console.log(`Receive orders from ${fromPeer}`, filteredOrders.length)
 
       this._handleMultipleCreate(filteredOrders)
     })
