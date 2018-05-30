@@ -36,7 +36,7 @@ class OrderCollection extends Collection {
           'isProcessing',
         ))
 
-        console.log(`Send my orders to ${peer}`, myOrders)
+        console.log(`Send my orders to ${peer}`, myOrders.length)
 
         room.sendMessage(peer, [
           {
@@ -65,7 +65,7 @@ class OrderCollection extends Collection {
         !this.getByKey(id) && peer === fromPeer
       ))
 
-      console.log(`Receive orders from ${fromPeer}`, filteredOrders)
+      console.log(`Receive orders from ${fromPeer}`, filteredOrders.length)
 
       this._handleMultipleCreate(filteredOrders)
     })
