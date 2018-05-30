@@ -20,3 +20,5 @@ server.use('/', router)
 server.listen(1337)
 
 console.log('app listening on http://localhost:1337')
+
+module.exports = { server, app }
