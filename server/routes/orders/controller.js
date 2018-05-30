@@ -25,6 +25,37 @@ const orderStatus = (req, res) => {
   findOrder(app)(req, res, sendStatus(req, res))
 }
 
+const createOrder = (req, res) => {
+  try {
+    const data = req.body
+
+    let example = {
+      buyCurrency: 'ETH',
+      sellCurrency: 'BTC',
+      buyAmount: 1,
+      sellAmount: 0.1,
+    }
+
+    app.createOrder(data)
+    console.log('new order', data)
+
+    res.status(201).json(data)
+  } catch (err) {
+    res.status(400).send('cant create ' + err)
+  }
+}
+
+const deleteOrder = (req, res) => {
+  try {
+    findOrder(app)(req, res, (order) => {
+      app.removeOrder(order.id)
+      res.status(200).json(order)
+    })
+  } catch (err) {
+    res.status(400).send('cant delete ' + err)
+  }
+}
+
 const acceptSwap = (req, res) => {
   try {
     let order = findOrder(app)(req, res)
@@ -86,6 +117,8 @@ module.exports = {
   filterOrders,
   listOrders,
   orderStatus,
+  createOrder,
+  deleteOrder,
   acceptSwap,
   startSwap,
   signSwap,
