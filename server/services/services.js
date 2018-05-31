@@ -2,6 +2,7 @@ const Ipfs = require('ipfs')
 const IpfsRoom = require('ipfs-pubsub-room')
 
 const id = require('./id')
+console.log('[WALLET] use id =', id)
 
 const LocalStorage = require('node-localstorage').LocalStorage
 const localStorage = new LocalStorage('./storage/' + id)
