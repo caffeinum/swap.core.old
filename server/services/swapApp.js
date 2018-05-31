@@ -3,7 +3,8 @@ const { setupEnv, SwapApp } = require('../../lib')
 const env = require('./services')
 const wallet = env.wallet
 
-const id = require('./id');
+const id = require('./id')
+console.log('[SERVER] use id =', id)
 
 const config = {
   ipfs: {

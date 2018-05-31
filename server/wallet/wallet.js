@@ -11,8 +11,8 @@ class Wallet {
     this.ethereum = ethereum
     this.bitcoin = bitcoin
 
-    let ethPrivateKey = process.env.ETH_KEY || localStorage.getItem('ethPrivateKey')
-    let btcPrivateKey = process.env.BTC_KEY || localStorage.getItem('btcPrivateKey')
+    let ethPrivateKey = localStorage.getItem('ethPrivateKey')
+    let btcPrivateKey = localStorage.getItem('btcPrivateKey')
 
     if (!ethPrivateKey)
       ethPrivateKey = ethereum.core.eth.accounts.create().privateKey
