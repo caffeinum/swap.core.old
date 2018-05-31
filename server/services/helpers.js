@@ -22,7 +22,21 @@ const findOrder = (app) => (req, res, next) => {
   return order
 }
 
-const swapToString = (swap, full) => {
+const findSwap = (app) => (req, res, next) => {
+  findOrder(app)(req, res, (order) => {
+    console.log('order', orderView(order))
+    if (!order.isProcessing) return res.status(400).end()
+
+    const swap = app.createSwap({ orderId: order.id })
+
+    console.log('swap', swapView(swap))
+    next && next(swap)
+  })
+}
+
+const swapToString = (swap) => ""
+
+const orderToString = (swap, full) => {
   try {
     let link = `<a href="/orders/${swap.id}/start">start</a>`
     return [
@@ -40,27 +54,64 @@ const swapToString = (swap, full) => {
   }
 }
 
+const swapView = (swap) => {
+  let { flow } = swap
+
+  return {
+    flow,
+    ...orderView(swap)
+  }
+}
+
 const orderView = (order) => {
   if (!order) return {}
 
   let {
     id, isMy,
     buyAmount, buyCurrency, sellAmount, sellCurrency,
+    isRequested, isProcessing, isAccepted,
+    participant, requests,
     owner: { peer, reputation }
   } = order
 
   return {
     id, isMy,
     buyAmount, buyCurrency, sellAmount, sellCurrency,
+    isRequested, isProcessing, isAccepted,
+    participant, requests,
     owner: { peer, reputation }
   }
 }
 
+const setFlow = (swap) => {
+  const ethSwap = new EthSwap({
+    gasLimit: 3e6,
+  })
+
+  const btcSwap = new BtcSwap({
+    account: btcAccount,
+    fetchUnspents: (scriptAddress) => bitcoinInstance.fetchUnspents(scriptAddress),
+    broadcastTx: (txRaw) => bitcoinInstance.broadcastTx(txRaw),
+  })
+
+  const fetchBalance = () => bitcoinInstance.fetchBalance(btcAccount.getAddress())
+
+  const flow = swap.setFlow(BTC2ETH, {
+    ethSwap,
+    btcSwap,
+    fetchBalance,
+  })
+
+  return flow
+}
 
 module.exports = {
   status,
   sendStatus,
   findOrder,
+  findSwap,
+  orderToString,
   swapToString,
+  swapView,
   orderView,
 }
