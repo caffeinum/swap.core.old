@@ -14,11 +14,10 @@ app.on('ready', () => {
   console.log('eth', wallet.eth.address)
 })
 
-
+const port = process.env.PORT || 1337
 server.use(bodyparser.json())
 server.use('/', router)
-server.listen(1337)
-
-console.log('app listening on http://localhost:1337')
+server.listen(port)
+console.log(`app listening on http://localhost:${port}`)
 
 module.exports = { server, app }
