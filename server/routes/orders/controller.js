@@ -1,8 +1,7 @@
-const { status, sendStatus, findOrder, swapToString, orderView } = require('../../services/helpers')
-const { start, signSwapFlow, submitSecret } = require('../../services/swap')
+const { status, sendStatus, findOrder, orderView } = require('../../services/helpers')
 const { app, wallet } = require('../../services/swapApp')
 
-let _order, _status
+let _order, _status, _swap
 
 const listOrders = (req, res) => {
   orders = app.getOrders().filter( order => !!order )
@@ -21,20 +20,23 @@ const filterOrders = (req, res) => {
   res.json(orders)
 }
 
-const orderStatus = (req, res) => {
-  findOrder(app)(req, res, sendStatus(req, res))
+const requestedOrders = (req, res) => {
+  let orders = app.getMyOrders()
+
+  orders = orders.filter( ({ requests }) => requests.length )
+  orders = orders.map(orderView)
+
+  res.json(orders)
+}
+
+const getOrder = (req, res) => {
+  findOrder(app)(req, res, (order) => res.json(orderView(order)))
 }
 
 const createOrder = (req, res) => {
   try {
-    const data = req.body
-
-    let example = {
-      buyCurrency: 'ETH',
-      sellCurrency: 'BTC',
-      buyAmount: 1,
-      sellAmount: 0.1,
-    }
+    const { buyCurrency, sellCurrency, buyAmount, sellAmount, } = req.body
+    const data = { buyCurrency, sellCurrency,  buyAmount, sellAmount, }
 
     app.createOrder(data)
     console.log('new order', data)
@@ -49,78 +51,78 @@ const deleteOrder = (req, res) => {
   try {
     findOrder(app)(req, res, (order) => {
       app.removeOrder(order.id)
-      res.status(200).json(order)
+      res.status(200).end()
     })
   } catch (err) {
     res.status(400).send('cant delete ' + err)
   }
 }
 
-const acceptSwap = (req, res) => {
+const deleteAllOrders = (req, res) => {
   try {
-    let order = findOrder(app)(req, res)
+    app.getMyOrders().map( order => {
+      app.removeOrder(order.id)
 
-    _order = order
-    _status = { resolved: false, accepted: null }
-    order.status = _status
+    })
 
-    let accept = new Promise((resolve, reject) =>
-      order.sendRequest((accepted) => {
-        _status = { resolved: true, accepted }
-        resolve(accepted)
-      }))
-
-    res.json({ started: true, status: status(order) })
-  } catch (e) {
-    res.status(500).json(e)
+    res.status(200).end()
+  } catch (err) {
+    res.status(400).send('cant delete ' + err)
   }
 }
 
-const startSwap = (req, res) => {
+const requestOrder = (req, res) => {
   findOrder(app)(req, res, (order) => {
-    let { eth, btc } = wallet
-    console.log('order', order)
+    order.sendRequest( accepted => {
+      order.isAccepted = accepted
+      if (!accepted) return
 
-    let accept = new Promise((resolve, reject) =>
-      order.sendRequest((accepted) => {
-        accepted ? resolve(true) : reject(false)
-      }))
+      const swap = app.createSwap({ orderId: order.id })
 
-    accept.then( () => {
-      let swap = app.createSwap({ orderId: order.id })
+      console.log('peer accepted order', orderView(order))
       console.log('swap', swap)
-      start(swap, eth, btc)
-      _status.started = true
-      sendStatus(req, res)(order)
-    }).catch(() => res.status(500).send('not accepted'))
 
+      _swap = swap
+    })
+
+    res.json(orderView(order))
   })
 }
 
-const signSwap = (req, res) => {
+const acceptRequest = (req, res) => {
   findOrder(app)(req, res, (order) => {
-    signSwap(order)
-    _status.signed = true
-    sendStatus(res)
-  })
-}
+    let peer = req.params.peer
 
-const submitSwapSecret = (req, res) => {
-  findOrder(app)(req, res, (order) => {
-    submitSecret(order, secret)
-    _status.submitted = true
-    sendStatus(res)
+    if (order.requests.length == 1)
+      peer = order.requests[0].peer
+
+    if (!peer)
+      return res.status(404).send('no peer')
+
+    order.acceptRequest(peer)
+
+    console.log('peer', peer)
+    console.log('accepting order', orderView(order))
+
+    const swap = app.createSwap({ orderId: order.id })
+    console.log('swap', swap)
+
+    _swap = swap
+
+    res.json(orderView(order))
   })
 }
 
 module.exports = {
   filterOrders,
   listOrders,
-  orderStatus,
+  requestedOrders,
+
+  getOrder,
   createOrder,
   deleteOrder,
-  acceptSwap,
-  startSwap,
-  signSwap,
-  submitSwapSecret,
+  deleteAllOrders,
+
+  requestOrder,
+  acceptRequest,
 }

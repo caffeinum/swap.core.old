@@ -129,27 +129,33 @@ See order:
 
 ### Orders interaction
 
-Start Swap
+Request order (Alice)
 
+    GET /orders/:id/request
 
-    GET /orders/:id/start-swap
+Bob now can see incoming requests:
 
-Check Swap status
+    GET /orders/requests
 
+And the accept or decline:
 
-    GET /orders/:id/status
+    GET /orders/:id/accept
+    GET /orders/:id/decline
 
-Sign Swap
+If there are more than one requests for the order, they are distinguished by peer
 
+    GET /orders/:id/accept/:peer
+    GET /orders/:id/decline/:peer
 
-    GET /orders/:id/sign-swap
+After that, `Swap` is created and everything else happens under `/swaps` endpoint
 
-Submit secret
+### Swaps
 
+Swap info
 
-    GET /orders/:id/submit-secret
+    GET /swaps/:id/
 
-
+Coming soon...
 
 For more examples, see tests:
 

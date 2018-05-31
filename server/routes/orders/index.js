@@ -1,29 +1,43 @@
 const { Router } = require('express')
 const router = new Router()
-const swapApp = require('../../services/swapApp')
 
 const {
   listOrders,
   filterOrders,
+  requestedOrders,
+
   orderStatus,
+  getOrder,
   createOrder,
   deleteOrder,
-  startSwap,
-  acceptSwap,
-  signSwap,
-  submitSwapSecret,
+  deleteAllOrders,
+
+  requestOrder,
+  acceptRequest,
 } = require('./controller')
 
+// order list
 router.get('/', listOrders)
 router.get('/search', filterOrders)
-router.get('/:id/status', orderStatus)
+router.get('/requests', requestedOrders)
 
+// create new order
 router.post('/', createOrder)
+
+// delete order(s)
+router.delete('/all', deleteAllOrders)
 router.delete('/:id', deleteOrder)
 
-router.get('/:id/accept', acceptSwap)
-router.get('/:id/start', startSwap)
-router.get('/:id/sign-swap', signSwap)
-router.get('/:id/submit-secret', submitSwapSecret)
+// actions with order
+router.get('/:id', getOrder)
+
+// request swap
+router.put('/:id', requestOrder)
+router.get('/:id/request', requestOrder)
+
+// incoming request to swap
+router.get('/:id/accept', acceptRequest)
+router.get('/:id/accept/:peer', acceptRequest)
+router.get('/:id/decline/:peer', acceptRequest)
 
 module.exports = router
