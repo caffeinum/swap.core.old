@@ -27,7 +27,13 @@ const setItem = (key, value) => {
 
 const getItem = (key) => {
   if (isLocalStorageEnabled()) {
-    const value = env.localStorage.getItem(key)
+    let value
+
+    try {
+      value = env.localStorage.getItem(key)
+    } catch (err) {
+      return false
+    }
 
     try {
       return JSON.parse(value)

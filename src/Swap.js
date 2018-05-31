@@ -64,6 +64,7 @@ class Swap {
 
   _saveState() {
     const data = pullProps(
+      this,
       'id',
       'isMy',
       'owner',
