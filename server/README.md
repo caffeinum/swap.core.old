@@ -45,6 +45,15 @@ To use your own wallet, place `.env` file in the root with your keys:
   },
   ... ]
   ```
+  You can use `curl` or `wget` in another terminal window to access endpoint:
+
+  ```
+  curl http://localhost:1337/orders
+  ```
+  If you have jq installed for json formatting:
+  ```
+  curl http://localhost:1337/orders | jq
+  ```
 
 2. Extract an ID, e.g. `"QmWM4qK2jhQ3cyXpKF7qsKBa2WiVSprqGYhsEX9bxcPdZo-1527476621240"`
 
@@ -75,6 +84,7 @@ Server wallet information: balance, peer ID, addresses.
     =>
 
     {
+      "wallet": {...keys...}
       "balances": {
         "eth": 97.72631876,
         "btc": 1.73163658
