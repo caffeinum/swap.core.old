@@ -1,10 +1,13 @@
 const Ipfs = require('ipfs')
 const IpfsRoom = require('ipfs-pubsub-room')
 
-const LocalStorage = require('node-localstorage').LocalStorage
-const localStorage = new LocalStorage('./storage')
+const id = require('./id')
 
-const wallet = require('../wallet')
+const LocalStorage = require('node-localstorage').LocalStorage
+const localStorage = new LocalStorage('./storage/' + id)
+
+const Wallet = require('../wallet')
+const wallet = new Wallet(localStorage)
 
 module.exports = {
   Ipfs, IpfsRoom,

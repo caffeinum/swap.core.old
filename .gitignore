@@ -3,6 +3,7 @@
 
 .env
 storage/
+.ipfs/
 
 node_modules
 lib

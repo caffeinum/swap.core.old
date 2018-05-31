@@ -1,22 +1,27 @@
-const LocalStorage = require('node-localstorage').LocalStorage
-const localStorage = new LocalStorage('./storage')
 
 const bitcoin = require('./bitcoin')
 const ethereum = require('./ethereum')
 
 const bjs = bitcoin.core
 const web3 = ethereum.core
+const network = bitcoin.core.networks.testnet
 
 class Wallet {
-  constructor() {
+  constructor(localStorage) {
     this.ethereum = ethereum
     this.bitcoin = bitcoin
 
-    const ethPrivateKey = process.env.ETH_KEY || localStorage.getItem('ethPrivateKey')
-    const btcPrivateKey = process.env.BTC_KEY || localStorage.getItem('btcPrivateKey')
+    let ethPrivateKey = process.env.ETH_KEY || localStorage.getItem('ethPrivateKey')
+    let btcPrivateKey = process.env.BTC_KEY || localStorage.getItem('btcPrivateKey')
+
+    if (!ethPrivateKey)
+      ethPrivateKey = ethereum.core.eth.accounts.create().privateKey
+
+    if(!btcPrivateKey)
+      btcPrivateKey = bitcoin.core.ECPair.makeRandom({ network }).toWIF()
 
     this.eth = ethereum.core.eth.accounts.wallet.add(ethPrivateKey)
-    this.btc = new bitcoin.core.ECPair.fromWIF(btcPrivateKey, bitcoin.core.networks.testnet)
+    this.btc = new bitcoin.core.ECPair.fromWIF(btcPrivateKey, network)
 
     localStorage.setItem('ethPrivateKey', ethPrivateKey)
     localStorage.setItem('btcPrivateKey', btcPrivateKey)
@@ -60,6 +65,6 @@ class Wallet {
   }
 }
 
-const wallet = new Wallet()
+// const wallet = new Wallet()
 
-module.exports = wallet
+module.exports = Wallet
