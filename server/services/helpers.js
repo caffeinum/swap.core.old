@@ -54,11 +54,21 @@ const orderToString = (swap, full) => {
   }
 }
 
+const decodeFlow = (swap) => {
+  const { isMy: isMyOrder, buyCurrency, sellCurrency } = swap
+
+  const firstPart     = isMyOrder ? sellCurrency : buyCurrency
+  const lastPart      = isMyOrder ? buyCurrency : sellCurrency
+  const flowName = `${firstPart}2${lastPart}`
+
+  return flowName
+}
+
 const swapView = (swap) => {
   let { flow } = swap
 
   return {
-    flow,
+    flow: flow ? flow.state : null,
     ...orderView(swap)
   }
 }
@@ -112,6 +122,7 @@ module.exports = {
   findSwap,
   orderToString,
   swapToString,
+  decodeFlow,
   swapView,
   orderView,
 }

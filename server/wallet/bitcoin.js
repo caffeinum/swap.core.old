@@ -52,11 +52,14 @@ class Bitcoin {
   }
 
   fetchUnspents(address) {
-    return request.get(`https://test-insight.bitpay.com/api/addr/${address}/utxo`)
+    return request
+      .get(`https://test-insight.bitpay.com/api/addr/${address}/utxo`)
+      .then(json => JSON.parse(json))
   }
 
   broadcastTx(txRaw) {
     return request.post(`https://test-insight.bitpay.com/api/tx/send`, {
+      json: true,
       body: {
         rawtx: txRaw,
       },

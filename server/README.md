@@ -23,7 +23,20 @@ To use your own wallet, place `.env` file in the root with your keys:
 
   `npm run server-dev`
 
-3. List available orders
+3. (Alice) Create order.
+
+  ```
+  POST /orders/
+  Content-Type: application/json
+  {
+    "buyCurrency": "ETH",
+    "sellCurrency": "BTC",
+    "buyAmount": 0.1,
+    "sellAmount": 0.15
+  }
+  ```
+
+4. (Bob) List available orders
 
   ```
   GET /orders
@@ -55,23 +68,31 @@ To use your own wallet, place `.env` file in the root with your keys:
   curl http://localhost:1337/orders | jq
   ```
 
-2. Extract an ID, e.g. `"QmWM4qK2jhQ3cyXpKF7qsKBa2WiVSprqGYhsEX9bxcPdZo-1527476621240"`
+5. Extract an ID, e.g. `"QmWM4qK2jhQ3cyXpKF7qsKBa2WiVSprqGYhsEX9bxcPdZo-1527476621240"`
 
-3. Start Swap:
-  `GET /orders/:id/start-swap`
+6. Start Swap:
 
-4. Wait for acceptance from another peer, checking status:
+  `GET /orders/:id/request`
+
+7. Wait for acceptance from another peer, checking status:
 
   `GET /orders/:id/status`
 
-5. Follow steps to finish swap:
-  - exchange signatures
-  - generate secret
-  - instruction
-  - is not
-  - finished
-  - yet
-  - etc
+8. (Alice) Accept request on another side. If many requests, specify peer.
+
+  `GET /orders/:id/accept[/:peer]`
+
+9. (Alice and Bob) Start swap.
+
+  `GET /swaps/:id/go`
+
+  Where id is an order id from previous steps.
+
+10. Check status at:
+
+  `GET /swaps/:id`
+
+  Swap usually takes around minute to complete.
 
 ## Interface
 
@@ -155,7 +176,13 @@ Swap info
 
     GET /swaps/:id/
 
-Coming soon...
+Go swap
+
+    GET /swaps/:id/go
+
+Then, check status at `Swap info`
+
+    GET /swaps/:id/
 
 For more examples, see tests:
 
