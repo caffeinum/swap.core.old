@@ -13,7 +13,7 @@
   "scripts": {
     "test": "ava",
     "test-api": "mocha --timeout 10000 server/test",
-    "clean": "rm -rf /lib && rm -rf storage/**/flow.*",
+    "clean": "rm -rf lib/ && rm -rf storage/**/flow.*",
     "watch": "cpx './src/**/*.js' ./app/src/swap -w",
     "server-dev": "npm run build && nodemon server/app.js",
     "server": "npm run build && node server/app.js",
