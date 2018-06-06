@@ -43,9 +43,9 @@ const orderToString = (swap, full) => {
       full ? link : '',
       swap.id.split('-').pop(),
       ( swap.isMy ? 'my' : '- ' ),
-      swap.buyAmount.toString().padStart('10'), swap.buyCurrency.padEnd(10),
+      swap.buyAmount, swap.buyCurrency,
       '→',
-      swap.sellAmount.toString().padStart('10'), swap.sellCurrency.padEnd(10),
+      swap.sellAmount, swap.sellCurrency,
       'REP', swap.owner.reputation,
       '[', swap.owner.peer.slice(0,5), '...', swap.owner.peer.slice(-10), ']'
     ].join(' ')
@@ -85,7 +85,7 @@ const orderView = (order) => {
   } = order
 
   return {
-    id, isMy,
+    id, isMy, string: orderToString(order),
     buyAmount, buyCurrency, sellAmount, sellCurrency,
     isRequested, isProcessing, isAccepted,
     participant, requests,
