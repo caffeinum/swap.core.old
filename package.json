@@ -17,6 +17,8 @@
     "watch": "cpx './src/**/*.js' ./app/src/swap -w",
     "server-dev": "npm run build && nodemon server/app.js",
     "server": "npm run build && node server/app.js",
+    "pm2": "pm2 start ecosystem.config.js --only api",
+    "pm2:dev": "pm2 start ecosystem.config.js",
     "alice": "export PORT=7777 && npm run server -- 1234567890",
     "bob": "export PORT=8888 && npm run server -- 9876543210",
     "dev:alice": "export PORT=7777; export DEBUG_PORT=7077 && npm run server-dev -- 1234567890",
