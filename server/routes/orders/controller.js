@@ -85,6 +85,7 @@ const requestOrder = (req, res) => {
       _swap = swap
     })
 
+    order.swap = `/swaps/${order.id}/go`
     res.json(orderView(order))
   })
 }
@@ -108,6 +109,8 @@ const acceptRequest = (req, res) => {
     console.log('swap', swap)
 
     _swap = swap
+
+    order.swap = `/swaps/${order.id}/go`
 
     res.json(orderView(order))
   })
