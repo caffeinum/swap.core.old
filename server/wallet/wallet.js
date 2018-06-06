@@ -43,6 +43,17 @@ class Wallet {
     }
   }
 
+  async withdraw(from, to, value) {
+    switch (from) {
+      // case 'btc':
+      //   return bitcoin.sendTransaction({ account: this.btc, to, value})
+      case 'eth':
+        return ethereum.sendTransaction({to, value})
+      default:
+        return Promise.reject('not implemented')
+    }
+  }
+
   async getBalance() {
     let ethBalance = ethereum.fetchBalance(this.eth.address)
     let btcBalance = bitcoin.fetchBalance(this.btc.getAddress())

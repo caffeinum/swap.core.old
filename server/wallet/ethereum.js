@@ -41,6 +41,15 @@ class Ethereum {
     return request.get(`https://rinkeby.etherscan.io/api?module=account&action=tokenbalance&contractaddress=0x60c205722c6c797c725a996cf9cca11291f90749&address=${address}`)
       .then(({ result }) => result)
   }
+
+  async sendTransaction({to, value}) {
+    const from = this.core.eth.accounts.wallet[0]
+    const gas = 1e5
+
+    value = this.core.utils.toWei(value.toString())
+
+    return this.core.eth.sendTransaction({ from, to, value, gas })
+  }
 }
 
 module.exports = new Ethereum()
