@@ -129,6 +129,14 @@ class Flow {
     this.steps[index]()
   }
 
+  enterStep(index) {
+    return new Promise(resolve => {
+      this.on('enter step', (step) => {
+        if (step == index) resolve(step)
+      })
+    })
+  }
+
   setState(values, save) {
     this.state = {
       ...this.state,
