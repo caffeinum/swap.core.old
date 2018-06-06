@@ -15,36 +15,34 @@ const getSwap = (req, res) => {
 }
 
 const goSwap = (req, res) => {
-  findSwap(app)(req, res, (swap) => {
+  findSwap(app)(req, res, async (swap) => {
     if ( swap.flow && swap.flow.step )
       return res.json(swapView(swap))
 
+    console.log('swap', swap)
+
     const name = decodeFlow(swap)
 
+    console.log('flow name', name)
     const flow = swap.setFlow(flows[name], FLOW_CONFIG(swap.sellCurrency == "btc"))
 
     console.log('flow', flow)
-    console.log('flow name', name)
+    res.json(swapView(swap))
 
     if ( name == "BTC2ETH" ) {
-      swap.flow.on('enter step', (step) => {
-        if ( step == 1 ) swap.flow.submitSecret(SECRET)
-      })
-      
-    } else if ( name == "ETH2BTC" ) {
-      swap.flow.sign()
+      await flow.enterStep(1)
+      flow.submitSecret(SECRET)
 
-      swap.flow.on('enter step', (step) => {
-        console.log('enter step', step)
-        if ( step == 2 ) swap.flow.verifyBtcScript()
-      })
+      await flow.enterStep(3)
+      console.error('checking balance')
+
+    } else if ( name == "ETH2BTC" ) {
+      flow.sign()
+
+      await flow.enterStep(2)
+      flow.verifyBtcScript()
     }
 
-    // swap.flow.syncBalance()
-
-    console.log('swap', swap)
-
-    res.json(swapView(swap))
   })
 }
 
