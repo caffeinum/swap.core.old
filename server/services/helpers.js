@@ -59,7 +59,7 @@ const decodeFlow = (swap) => {
 
   const firstPart     = isMyOrder ? sellCurrency : buyCurrency
   const lastPart      = isMyOrder ? buyCurrency : sellCurrency
-  const flowName = `${firstPart}2${lastPart}`
+  const flowName = `${firstPart.toUpperCase()}2${lastPart.toUpperCase()}`
 
   return flowName
 }
@@ -77,7 +77,7 @@ const orderView = (order) => {
   if (!order) return {}
 
   let {
-    id, isMy,
+    id, isMy, swap,
     buyAmount, buyCurrency, sellAmount, sellCurrency,
     isRequested, isProcessing, isAccepted,
     participant, requests,
@@ -85,7 +85,7 @@ const orderView = (order) => {
   } = order
 
   return {
-    id, isMy, string: orderToString(order),
+    id, isMy, swap, string: orderToString(order),
     buyAmount, buyCurrency, sellAmount, sellCurrency,
     isRequested, isProcessing, isAccepted,
     participant, requests,
