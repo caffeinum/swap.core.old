@@ -8,11 +8,11 @@ module.exports = {
       name            : 'alice',
       script          : './server/app.js',
       args            : '1234567890',
+      node_args       : '--inspect=7077',
       watch           : true,
       ignore_watch    : ["node_modules", "storage", ".ipfs"],
       env             : {
         PORT : 7777,
-        DEBUG_PORT: 7077,
       }
     },
     {
@@ -20,10 +20,10 @@ module.exports = {
       script          : './server/app.js',
       args            : '9876543210',
       watch           : true,
+      node_args       : '--inspect=8088',
       ignore_watch    : ["node_modules", "storage", ".ipfs"],
       env             : {
         PORT : 8888,
-        DEBUG_PORT: 8088,
       }
     },
     {
