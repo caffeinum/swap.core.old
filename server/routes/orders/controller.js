@@ -75,14 +75,9 @@ const requestOrder = (req, res) => {
   findOrder(app)(req, res, (order) => {
     order.sendRequest( accepted => {
       order.isAccepted = accepted
+      console.log('accepted', accepted)
       if (!accepted) return
-
-      const swap = app.createSwap({ orderId: order.id })
-
       console.log('peer accepted order', orderView(order))
-      console.log('swap', swap)
-
-      _swap = swap
     })
 
     order.isAccepted = false

@@ -7,6 +7,9 @@ const SECRET = 'c0809ce9f484fdcdfb2d5aabd609768ce0374ee97a1a5618ce4cd3f16c00a078
 
 const getSwap = (req, res) => {
   findSwap(app)(req, res, (swap) => {
+    if ( swap.flow && swap.flow.step )
+      return res.json(swapView(swap))
+
     const name = decodeFlow(swap)
     const flow = swap.setFlow(flows[name], FLOW_CONFIG(swap.sellCurrency == "btc"))
 
@@ -30,7 +33,7 @@ const goSwap = (req, res) => {
       swap.flow.on('enter step', (step) => {
         if ( step == 1 ) swap.flow.submitSecret(SECRET)
       })
-      
+
     } else if ( name == "ETH2BTC" ) {
       swap.flow.sign()
 
