@@ -85,6 +85,7 @@ const requestOrder = (req, res) => {
       _swap = swap
     })
 
+    order.isAccepted = false
     order.swap = `/swaps/${order.id}/go`
     res.json(orderView(order))
   })
