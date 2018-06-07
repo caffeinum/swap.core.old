@@ -43,7 +43,7 @@ const createOrder = (req, res) => {
 
     res.status(201).json(data)
   } catch (err) {
-    res.status(400).send('cant create ' + err)
+    res.status(400).json({ error: 'cant create ' + err })
   }
 }
 
@@ -54,7 +54,7 @@ const deleteOrder = (req, res) => {
       res.status(200).end()
     })
   } catch (err) {
-    res.status(400).send('cant delete ' + err)
+    res.status(400).json({ error: 'cant delete ' + err })
   }
 }
 
@@ -67,7 +67,7 @@ const deleteAllOrders = (req, res) => {
 
     res.status(200).end()
   } catch (err) {
-    res.status(400).send('cant delete ' + err)
+    res.status(400).json({ error: 'cant delete ' + err })
   }
 }
 
@@ -94,7 +94,7 @@ const acceptRequest = (req, res) => {
       peer = order.requests[0].peer
 
     if (!peer)
-      return res.status(404).send('no peer')
+      return res.status(404).json({ error: 'no peer' })
 
     order.acceptRequest(peer)
 
