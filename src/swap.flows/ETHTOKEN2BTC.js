@@ -98,12 +98,14 @@ class ETHTOKEN2BTC extends Flow {
         })
 
         await this.ethSwap.create(swapData, (transactionUrl) => {
-          this.setState({
+          flow.setState({
             ethSwapCreationTransactionUrl: transactionUrl,
           })
         })
 
-        this.swap.room.sendMessage('create eth contract')
+        this.swap.room.sendMessage('create eth contract', {
+          ethSwapCreationTransactionUrl: flow.state.ethSwapCreationTransactionUrl,
+        })
 
         this.finishStep({
           isEthContractFunded: true,
