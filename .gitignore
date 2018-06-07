@@ -5,6 +5,8 @@
 storage/
 .ipfs/
 
+*.example
+
 node_modules
 lib
 app/src/swap
