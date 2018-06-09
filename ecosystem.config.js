@@ -10,7 +10,7 @@ module.exports = {
       args            : '1234567890',
       node_args       : '--inspect=7077',
       watch           : true,
-      ignore_watch    : ["node_modules", "storage", ".ipfs"],
+      ignore_watch    : ["node_modules", "storage", ".ipfs", ".git"],
       env             : {
         PORT : 7777,
       }
@@ -21,7 +21,7 @@ module.exports = {
       args            : '9876543210',
       watch           : true,
       node_args       : '--inspect=8088',
-      ignore_watch    : ["node_modules", "storage", ".ipfs"],
+      ignore_watch    : ["node_modules", "storage", ".ipfs", ".git"],
       env             : {
         PORT : 8888,
       }
