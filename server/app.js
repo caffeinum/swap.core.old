@@ -6,7 +6,7 @@ const bodyparser = require('body-parser')
 const { app, wallet } = require('./services/swapApp')
 
 app.ready = false
-app.on('ready', () => {
+app.services.room.once('ready', () => {
   console.log('swapApp ready')
   app.ready = true
 

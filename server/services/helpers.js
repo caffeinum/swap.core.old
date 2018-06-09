@@ -1,3 +1,7 @@
+const flows = require('../../lib/swap.flows')
+// const { Swap } = require('./swap')
+const Swap = require('../../lib/swap.swap').default
+
 const status = (order) => !order ? null : {
   id: order.id,
   accepted: order.accepted,
@@ -9,12 +13,12 @@ const status = (order) => !order ? null : {
 const sendStatus = (req, res) => (order) => res.json(status(order))
 
 const findOrder = (app) => (req, res, next) => {
-  orders = app.getOrders()
+  orders = app.services.orders.items
 
   let id = req.params.id
 
   console.log('id', id)
-  let order = app.orderCollection.getByKey(id)
+  let order = app.services.orders.getByKey(id)
   if (!order) return res.status(404).send('no such order')
 
   next && next(order)
@@ -27,7 +31,8 @@ const findSwap = (app) => (req, res, next) => {
     console.log('order', orderView(order))
     if (!order.isProcessing) return res.status(400).end()
 
-    const swap = app.createSwap({ orderId: order.id })
+    const name = decodeFlow(order)
+    const swap = new Swap(order.id, flows[name])
 
     console.log('swap', swapView(swap))
     next && next(swap)
@@ -46,7 +51,6 @@ const orderToString = (swap, full) => {
       swap.buyAmount, swap.buyCurrency,
       '→',
       swap.sellAmount, swap.sellCurrency,
-      'REP', swap.owner.reputation,
       '[', swap.owner.peer.slice(0,5), '...', swap.owner.peer.slice(-10), ']'
     ].join(' ')
   } catch (e) {

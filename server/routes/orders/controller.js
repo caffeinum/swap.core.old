@@ -1,10 +1,11 @@
 const { status, sendStatus, findOrder, orderView } = require('../../services/helpers')
 const { app, wallet } = require('../../services/swapApp')
+const Orders = app.services.orders
 
 let _order, _status, _swap
 
 const listOrders = (req, res) => {
-  orders = app.getOrders().filter( order => !!order )
+  orders = Orders.items.filter( order => !!order )
   orders = orders.map(orderView)
 
   res.json(orders)
@@ -13,7 +14,7 @@ const listOrders = (req, res) => {
 const filterOrders = (req, res) => {
   let peer = req.query.peer || ''
 
-  orders = app.getOrders().filter( order => !!order )
+  orders = Orders.items.filter( order => !!order )
   orders = orders.filter( order => order.owner.peer == peer)
   orders = orders.map(orderView)
 
@@ -21,7 +22,7 @@ const filterOrders = (req, res) => {
 }
 
 const requestedOrders = (req, res) => {
-  let orders = app.getMyOrders()
+  let orders = Orders.getMyOrders()
 
   orders = orders.filter( ({ requests }) => requests.length )
   orders = orders.map(orderView)
@@ -38,7 +39,7 @@ const createOrder = (req, res) => {
     const { buyCurrency, sellCurrency, buyAmount, sellAmount, } = req.body
     const data = { buyCurrency, sellCurrency,  buyAmount, sellAmount, }
 
-    app.createOrder(data)
+    Orders.create(data)
     console.log('new order', data)
 
     res.status(201).json(data)
@@ -50,7 +51,7 @@ const createOrder = (req, res) => {
 const deleteOrder = (req, res) => {
   try {
     findOrder(app)(req, res, (order) => {
-      app.removeOrder(order.id)
+      Orders.remove(order.id)
       res.status(200).end()
     })
   } catch (err) {
@@ -60,8 +61,8 @@ const deleteOrder = (req, res) => {
 
 const deleteAllOrders = (req, res) => {
   try {
-    app.getMyOrders().map( order => {
-      app.removeOrder(order.id)
+    Orders.getMyOrders().map( order => {
+      Orders.remove(order.id)
 
     })
 
@@ -101,10 +102,10 @@ const acceptRequest = (req, res) => {
     console.log('peer', peer)
     console.log('accepting order', orderView(order))
 
-    const swap = app.createSwap({ orderId: order.id })
-    console.log('swap', swap)
-
-    _swap = swap
+    // const swap = new Swap(order.id)
+    // console.log('swap', swap)
+    //
+    // _swap = swap
 
     order.swap = `/swaps/${order.id}/go`
 

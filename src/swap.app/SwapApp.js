@@ -100,6 +100,8 @@ class SwapApp {
 }
 
 
-window.app = new SwapApp()
+const app = new SwapApp()
 
-export default window.app
+window = { app, ...window }
+
+export default app

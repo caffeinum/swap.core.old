@@ -1,3 +1,4 @@
+const swaps = require('./swaps')
 
 const bitcoin = require('./bitcoin')
 const ethereum = require('./ethereum')
@@ -26,6 +27,11 @@ class Wallet {
     localStorage.setItem('ethPrivateKey', ethPrivateKey)
     localStorage.setItem('btcPrivateKey', btcPrivateKey)
 
+    this.auth = {
+      eth: ethPrivateKey,
+      btc: btcPrivateKey
+    }
+
     let ethData = {
       address:    this.eth.address,
       publicKey:  this.eth.publicKey,
@@ -37,7 +43,6 @@ class Wallet {
     }
 
     this.config = {
-      reputation: 33,
       eth: ethData,
       btc: btcData,
     }

@@ -1,3 +1,7 @@
-const wallet = require('./wallet')
+const Wallet = require('./wallet')
+const Swaps = require('./swaps')
 
-module.exports = wallet
+module.exports = {
+  Wallet,
+  Swaps,
+}

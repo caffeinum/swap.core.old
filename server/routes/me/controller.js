@@ -1,6 +1,8 @@
 const { sendStatus, swapToString, orderView } = require('../../services/helpers')
 const { app, wallet } = require('../../services/swapApp')
 
+const Orders = app.services.orders
+
 let orders
 
 const status = (req, res) => {
@@ -45,7 +47,8 @@ const withdraw = async (req, res) => {
 }
 
 const listMyOrders = (req, res) => {
-  orders = app.getMyOrders().filter( order => !!order )
+
+  orders = Orders.getMyOrders().filter( order => !!order )
   orders = orders.map(orderView)
 
   res.json(orders)

@@ -1,26 +1,21 @@
-const { setupEnv, SwapApp } = require('../../lib')
+const swapApp = require('../../lib/swap.app').default
 
-const env = require('./services')
-const wallet = env.wallet
+const { env, wallet, swaps, services } = require('./services')
 
 const id = require('./id')
 console.log('[SERVER] use id =', id)
 
 const config = {
-  ipfs: {
-    repo: '.ipfs/' + id,
-    EXPERIMENTAL: { pubsub: true, },
-    config: {
-      Addresses: {
-        Swarm: [ '/dns4/star.wpmix.net/tcp/443/wss/p2p-websocket-star' ]
-      }
-    }
-  }
+  network: 'testnet',
+  env,
+  services,
+  swaps,
 }
 
-setupEnv(env)
+swapApp.setup(config)
 
-const app = new SwapApp({ me: wallet.config, config })
+const app = swapApp
+
 console.log('created swap app, me:', wallet.config)
 
 module.exports = { app, wallet }
