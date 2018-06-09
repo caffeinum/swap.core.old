@@ -102,6 +102,6 @@ class SwapApp {
 
 const app = new SwapApp()
 
-window = { app, ...window }
+if (window) window.app = app
 
 export default app
