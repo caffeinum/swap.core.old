@@ -1,12 +1,19 @@
-import SwapApp from 'swap.app'
-import events from './events'
+import { events } from './Events'
+import { storage } from './Storage'
+import room from './room'
 
+
+const getUniqueId = (() => {
+  let id = Date.now()
+
+  return () => `${storage.me.peer}-${++id}`
+})()
 
 class Order {
 
   /**
    *
-   * @param {object}  parent
+   * @param {object}  collection
    * @param {object}  data
    * @param {string}  data.id
    * @param {object}  data.owner
@@ -20,8 +27,8 @@ class Order {
    * @param {number}  data.buyAmount
    * @param {number}  data.sellAmount
    */
-  constructor(parent, data) {
-    this.id             = data.id
+  constructor({ collection, data }) {
+    this.id             = data.id || getUniqueId()
     this.isMy           = null
     this.owner          = null
     this.participant    = null
@@ -30,26 +37,27 @@ class Order {
     this.buyAmount      = null
     this.sellAmount     = null
 
-    this.collection     = parent
+    this.collection     = collection
     this.requests       = [] // income requests
     this.isRequested    = false // outcome request status
     this.isProcessing   = false // if swap isProcessing
 
     this._update({
       ...data,
-      isMy: data.owner.peer === SwapApp.services.room.peer,
+      isMy: data.owner.peer === storage.me.peer,
     })
 
     this._onMount()
   }
 
   _onMount() {
-    SwapApp.services.room.subscribe('request swap', ({ orderId, participant }) => {
-      if (orderId === this.id && !this.requests.find(({ peer }) => peer === participant.peer)) {
+    // Someone wants to start swap with you
+    room.subscribe('request swap', ({ swapId, participant }) => {
+      if (swapId === this.id && !this.requests.find(({ peer }) => peer === participant.peer)) {
         this.requests.push(participant)
 
         events.dispatch('new order request', {
-          orderId,
+          swapId,
           participant,
         })
       }
@@ -76,7 +84,7 @@ class Order {
   sendRequest(callback) {
     const self = this
 
-    if (SwapApp.services.room.peer === this.owner.peer) {
+    if (storage.me.peer === this.owner.peer) {
       console.warn('You are the owner of this Order. You can\'t send request to yourself.')
       return
     }
@@ -90,19 +98,18 @@ class Order {
       isRequested: true,
     })
 
-    SwapApp.services.room.sendMessage(this.owner.peer, [
+    room.sendMessage(this.owner.peer, [
       {
         event: 'request swap',
         data: {
-          orderId: this.id,
-          // TODO why do we send this info?
-          participant: SwapApp.services.auth.getPublicData(),
+          swapId: this.id,
+          participant: storage.me,
         },
       },
     ])
 
-    SwapApp.services.room.subscribe('accept swap request', function ({ orderId }) {
-      if (orderId === self.id) {
+    room.subscribe('accept swap request', function ({ swapId }) {
+      if (swapId === self.id) {
         this.unsubscribe()
 
         self.update({
@@ -114,8 +121,8 @@ class Order {
       }
     })
 
-    SwapApp.services.room.subscribe('decline swap request', function ({ orderId }) {
-      if (orderId === self.id) {
+    room.subscribe('decline swap request', function ({ swapId }) {
+      if (swapId === self.id) {
         this.unsubscribe()
 
         self.update({
@@ -138,11 +145,11 @@ class Order {
       requests: [],
     })
 
-    SwapApp.services.room.sendMessage(participantPeer, [
+    room.sendMessage(participantPeer, [
       {
         event: 'accept swap request',
         data: {
-          orderId: this.id,
+          swapId: this.id,
         },
       },
     ])
@@ -168,11 +175,11 @@ class Order {
       requests,
     })
 
-    SwapApp.services.room.sendMessage(participantPeer, [
+    room.sendMessage(participantPeer, [
       {
         event: 'decline swap request',
         data: {
-          orderId: this.id,
+          swapId: this.id,
         },
       },
     ])

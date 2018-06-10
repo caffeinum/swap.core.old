@@ -1,12 +1,15 @@
-import SwapApp, { Events, util } from 'swap.app'
-import Room from './Room'
+import Events from './Events'
+import SwapRoom from './SwapRoom'
+import orderCollection from './orderCollection'
+import { localStorage, pullProps } from './util'
 
 
 class Swap {
 
-  constructor(orderId, Flow) {
+  constructor({ orderId }) {
     this.events         = new Events()
     this.room           = null
+    this.flow           = null
 
     this.id             = orderId
     this.isMy           = null
@@ -18,19 +21,17 @@ class Swap {
     this.sellAmount     = null // not same as in order - for each user own
 
     this._persistState()
-
-    this.flow = new Flow(this)
   }
 
   _persistState() {
-    const order = SwapApp.env.storage.getItem(`swap.${this.id}`) || SwapApp.services.orders.getByKey(this.id)
+    const order = localStorage.getItem(`swap.${this.id}`) || orderCollection.getByKey(this.id)
 
     // if no `order` that means that participant is offline
     // TODO it's better to create swapCollection and store all swaps data there
     // TODO bcs if user offline and I'd like to continue Flow steps I don't need to w8 him
-    // TODO so no need to get data from SwapOrders
+    // TODO so no need to get data from orderCollection
     if (order) {
-      const { isMy, buyAmount, sellAmount, ...rest } = util.pullProps(
+      const { isMy, buyAmount, sellAmount, ...rest } = pullProps(
         order,
         'isMy',
         'owner',
@@ -52,7 +53,7 @@ class Swap {
         data.participant = data.owner
       }
 
-      this.room = new Room({
+      this.room = new SwapRoom({
         participantPeer: data.participant.peer,
       })
 
@@ -62,8 +63,7 @@ class Swap {
   }
 
   _saveState() {
-    const data = util.pullProps(
-      this,
+    const data = pullProps(
       'id',
       'isMy',
       'owner',
@@ -76,7 +76,16 @@ class Swap {
 
     console.log('New Swap state:', data)
 
-    SwapApp.env.storage.setItem(`swap.${this.id}`, data)
+    localStorage.setItem(`swap.${this.id}`, data)
+  }
+
+  setFlow(Flow, options) {
+    this.flow = new Flow({
+      swap: this,
+      options,
+    })
+
+    return this.flow
   }
 
   update(values) {

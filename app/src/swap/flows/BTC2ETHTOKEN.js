@@ -1,22 +1,26 @@
 import crypto from 'bitcoinjs-lib/src/crypto'
-import { Flow } from 'swap.swap'
-import SwapApp from 'swap.app'
+import Flow from '../Flow'
+import { storage } from '../Storage'
 
 
-class BTC2ETHTOKEN extends Flow {
+class BTC2ETH extends Flow {
 
-  constructor(swap) {
-    super(swap)
+  constructor({ swap, data, options: { ethSwap, btcSwap, fetchBalance } }) {
+    super({ swap })
 
-    this.ethTokenSwap = SwapApp.swaps.ethTokenSwap
-    this.btcSwap      = SwapApp.swaps.btcSwap
-
-    if (!this.ethTokenSwap) {
-      throw new Error('BTC2ETH failed. "ethTokenSwap" of type object required')
+    if (!ethSwap) {
+      throw new Error('BTC2ETH failed. "ethSwap" of type object required.')
     }
-    if (!this.btcSwap) {
-      throw new Error('BTC2ETH failed. "btcSwap" of type object required')
+    if (!btcSwap) {
+      throw new Error('BTC2ETH failed. "btcSwap" of type object required.')
     }
+    if (typeof fetchBalance !== 'function') {
+      throw new Error('BTC2ETH failed. "fetchBalance" of type function required.')
+    }
+
+    this.ethSwap        = ethSwap
+    this.btcSwap        = btcSwap
+    this.fetchBalance   = fetchBalance
 
     this.state = {
       step: 0,
@@ -83,12 +87,13 @@ class BTC2ETHTOKEN extends Flow {
 
         const { script: btcScript, ...scriptValues } = this.btcSwap.createScript({
           secretHash:         flow.state.secretHash,
-          btcOwnerPublicKey:  SwapApp.services.auth.accounts.btc.publicKey,
+          btcOwnerPublicKey:  storage.me.btc.publicKey,
           ethOwnerPublicKey:  participant.btc.publicKey,
         })
 
         await this.btcSwap.fundScript({
-          myKeyPair:  SwapApp.services.auth.accounts.btc,
+          myAddress:  storage.me.btc.address,
+          myKeyPair:  storage.me.btc,
           script:     btcScript,
           amount:     sellAmount,
         })
@@ -106,10 +111,9 @@ class BTC2ETHTOKEN extends Flow {
       // 5. Wait participant creates ETH Contract
 
       () => {
-        this.swap.room.once('create eth contract', ({ ethSwapCreationTransactionUrl }) => {
+        this.swap.room.once('create eth contract', () => {
           flow.finishStep({
             isEthContractFunded: true,
-            ethSwapCreationTransactionUrl,
           })
         })
       },
@@ -120,6 +124,7 @@ class BTC2ETHTOKEN extends Flow {
         const { participant } = this.swap
       
         const data = {
+          myAddress:      storage.me.eth.address,
           ownerAddress:   participant.eth.address,
           secret:         flow.state.secret,
         }
@@ -161,7 +166,7 @@ class BTC2ETHTOKEN extends Flow {
       isBalanceFetching: true,
     })
 
-    const balance = await this.btcSwap.fetchBalance(SwapApp.services.auth.accounts.btc.getAddress())
+    const balance = await this.fetchBalance()
     const isEnoughMoney = sellAmount <= balance
 
     if (isEnoughMoney) {
@@ -182,4 +187,4 @@ class BTC2ETHTOKEN extends Flow {
 }
 
 
-export default BTC2ETHTOKEN
+export default BTC2ETH

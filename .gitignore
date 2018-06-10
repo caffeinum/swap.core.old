@@ -9,4 +9,5 @@ storage/
 
 node_modules
 lib
-app/src/swap
+
+swap-core

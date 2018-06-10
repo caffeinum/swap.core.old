@@ -1,21 +1,25 @@
-import SwapApp from 'swap.app'
-import { Flow } from 'swap.swap'
+import Flow from '../Flow'
+import { storage } from '../Storage'
 
 
 class ETH2BTC extends Flow {
 
-  constructor(swap) {
-    super(swap)
+  constructor({ swap, data, options: { ethSwap, btcSwap, fetchBalance } }) {
+    super({ swap })
 
-    this.ethSwap = SwapApp.swaps.ethSwap
-    this.btcSwap = SwapApp.swaps.btcSwap
+    if (!ethSwap) {
+      throw new Error('ETH2BTC failed. "ethSwap" of type object required.')
+    }
+    if (!btcSwap) {
+      throw new Error('ETH2BTC failed. "btcSwap" of type object required.')
+    }
+    if (typeof fetchBalance !== 'function') {
+      throw new Error('ETH2BTC failed. "syncBalance" of type function required.')
+    }
 
-    if (!this.ethSwap) {
-      throw new Error('BTC2ETH: "ethSwap" of type object required')
-    }
-    if (!this.btcSwap) {
-      throw new Error('BTC2ETH: "btcSwap" of type object required')
-    }
+    this.ethSwap        = ethSwap
+    this.btcSwap        = btcSwap
+    this.fetchBalance   = fetchBalance
 
     this.state = {
       step: 0,
@@ -44,6 +48,10 @@ class ETH2BTC extends Flow {
     this._persistState()
   }
 
+  _persistState() {
+    super._persistState()
+  }
+
   _getSteps() {
     const flow = this
 
@@ -58,7 +66,7 @@ class ETH2BTC extends Flow {
       // 2. Wait participant create, fund BTC Script
 
       () => {
-        flow.swap.room.once('create btc script', ({ scriptValues }) => {
+        this.swap.room.once('create btc script', ({ scriptValues }) => {
           flow.finishStep({
             secretHash: scriptValues.secretHash,
             btcScriptValues: scriptValues,
@@ -81,25 +89,24 @@ class ETH2BTC extends Flow {
       // 5. Create ETH Contract
 
       async () => {
-        const { participant, sellAmount } = flow.swap
+        const { participant, sellAmount } = this.swap
 
         const swapData = {
+          myAddress:            storage.me.eth.address,
           participantAddress:   participant.eth.address,
           secretHash:           flow.state.secretHash,
           amount:               sellAmount,
         }
 
         await this.ethSwap.create(swapData, (transactionUrl) => {
-          flow.setState({
+          this.setState({
             ethSwapCreationTransactionUrl: transactionUrl,
           })
         })
 
-        flow.swap.room.sendMessage('create eth contract', {
-          ethSwapCreationTransactionUrl: flow.state.ethSwapCreationTransactionUrl,
-        })
+        this.swap.room.sendMessage('create eth contract')
 
-        flow.finishStep({
+        this.finishStep({
           isEthContractFunded: true,
         })
       },
@@ -107,7 +114,7 @@ class ETH2BTC extends Flow {
       // 6. Wait participant withdraw
 
       () => {
-        flow.swap.room.once('finish eth withdraw', () => {
+        this.swap.room.once('finish eth withdraw', () => {
           flow.finishStep({
             isEthWithdrawn: true,
           })
@@ -117,19 +124,23 @@ class ETH2BTC extends Flow {
       // 7. Withdraw
 
       async () => {
-        const { participant } = flow.swap
+        const { participant } = this.swap
 
         const myAndParticipantData = {
+          myAddress: storage.me.eth.address,
           participantAddress: participant.eth.address,
         }
 
-        const secret = await flow.ethSwap.getSecret(myAndParticipantData)
+        const secret = await this.ethSwap.getSecret(myAndParticipantData)
 
         await flow.ethSwap.close(myAndParticipantData)
 
         const { script } = flow.btcSwap.createScript(flow.state.btcScriptValues)
 
         await flow.btcSwap.withdraw({
+          // TODO here is the problem... now in `btcData` stored bitcoinjs-lib instance with additional functionality
+          // TODO need to rewrite this - check instances/bitcoin.js and core/swaps/btcSwap.js:185
+          btcData: storage.me.btcData,
           script,
           secret,
         }, (transactionUrl) => {
@@ -160,6 +171,7 @@ class ETH2BTC extends Flow {
 
     await this.ethSwap.sign(
       {
+        myAddress: storage.me.eth.address,
         participantAddress: participant.eth.address,
       },
       (signTransactionUrl) => {
@@ -189,7 +201,7 @@ class ETH2BTC extends Flow {
       isBalanceFetching: true,
     })
 
-    const balance = await this.ethSwap.fetchBalance(SwapApp.services.auth.accounts.eth.address)
+    const balance = await this.fetchBalance()
     const isEnoughMoney = sellAmount <= balance
 
     if (isEnoughMoney) {

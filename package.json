@@ -14,7 +14,7 @@
     "test": "ava",
     "test-api": "mocha --timeout 10000 server/test",
     "clean": "rm -rf lib/ && npm run server:clean",
-    "server:clean": "rm -rf storage/**/flow.*; rm -rf storage/**/swap.*",
+    "server:clean": "rm -rf storage/**/swap.flow.*; rm -rf storage/**/swap.swap.*",
     "watch": "cpx './src/**/*.js' ./app/src/swap -w",
     "server:dev": "npm run build && nodemon server/app.js",
     "server": "npm run build && node server/app.js",
@@ -64,7 +64,7 @@
     "mocha": "^5.2.0",
     "nodemon": "^1.17.5",
     "webpack": "^4.6.0",
-    "webpack-cli": "^2.0.15"
+    "webpack-cli": "^3.0.3"
   },
   "ava": {
     "files": [

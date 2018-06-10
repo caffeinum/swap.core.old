@@ -1,39 +1,30 @@
-import SwapApp, { Collection, ServiceInterface, util } from 'swap.app'
-import SwapRoom from 'swap.room'
-import aggregation from './aggregation'
-import events from './events'
+import { events } from './Events'
+import Collection from './Collection'
+import { storage } from './Storage'
 import Order from './Order'
+import room from './room'
+import { localStorage, pullProps } from './util'
 
 
-const getUniqueId = (() => {
-  let id = Date.now()
-  return () => `${SwapApp.services.room.peer}-${++id}`
-})()
-
-class SwapOrders extends aggregation(ServiceInterface, Collection) {
-
-  static get name() {
-    return 'orders'
-  }
+class OrderCollection extends Collection {
 
   constructor() {
     super()
 
-    this._serviceName = 'orders'
-    this._dependsOn   = [ SwapRoom ]
+    this._onMount()
   }
 
-  initService() {
-    SwapApp.services.room.subscribe('ready', () => {
+  _onMount() {
+    room.subscribe('ready', () => {
       this._persistMyOrders()
     })
 
-    SwapApp.services.room.subscribe('user online', (peer) => {
+    room.subscribe('user online', (peer) => {
       let myOrders = this.getMyOrders()
 
       if (myOrders.length) {
         // clean orders from other additional props
-        myOrders = myOrders.map((item) => util.pullProps(
+        myOrders = this.items.map((item) => pullProps(
           item,
           'id',
           'owner',
@@ -45,9 +36,9 @@ class SwapOrders extends aggregation(ServiceInterface, Collection) {
           'isProcessing',
         ))
 
-        console.log(`Send my orders to ${peer}`, myOrders.length)
+        console.log(`Send my orders to ${peer}`)
 
-        SwapApp.services.room.sendMessage(peer, [
+        room.sendMessage(peer, [
           {
             event: 'new orders',
             data: {
@@ -58,7 +49,7 @@ class SwapOrders extends aggregation(ServiceInterface, Collection) {
       }
     })
 
-    SwapApp.services.room.subscribe('user offline', (peer) => {
+    room.subscribe('user offline', (peer) => {
       const peerOrders = this.getPeerOrders(peer)
 
       if (peerOrders.length) {
@@ -68,29 +59,21 @@ class SwapOrders extends aggregation(ServiceInterface, Collection) {
       }
     })
 
-    SwapApp.services.room.subscribe('new orders', ({ fromPeer, orders }) => {
+    room.subscribe('new orders', ({ fromPeer, orders }) => {
       // ductape to check if such orders already exist
-      const filteredOrders = orders.filter(({ id, owner: { peer } }) => (
-        !this.getByKey(id) && peer === fromPeer
-      ))
+      const filteredOrders = orders.filter(({ id }) => !this.getByKey(id))
 
-      console.log(`Receive orders from ${fromPeer}`, filteredOrders.length)
+      console.log(`Receive orders from ${fromPeer}`, filteredOrders)
 
       this._handleMultipleCreate(filteredOrders)
     })
 
-    SwapApp.services.room.subscribe('new order', ({ fromPeer, order }) => {
-      if (order && order.owner && order.owner.peer === fromPeer) {
-        this._handleCreate(order)
-      }
+    room.subscribe('new order', ({ order: data }) => {
+      this._handleCreate(data)
     })
 
-    SwapApp.services.room.subscribe('remove order', ({ fromPeer, orderId }) => {
-      const order = this.getByKey(orderId)
-
-      if (order && order.owner && order.owner.peer === fromPeer) {
-        this._handleRemove(orderId)
-      }
+    room.subscribe('remove order', ({ orderId }) => {
+      this._handleRemove(orderId)
     })
   }
 
@@ -101,9 +84,9 @@ class SwapOrders extends aggregation(ServiceInterface, Collection) {
   }
 
   _create(data) {
-    const order = new Order(this, {
-      ...data,
-      id: data.id || getUniqueId(),
+    const order = new Order({
+      collection: this,
+      data,
     })
 
     this.append(order, order.id)
@@ -155,14 +138,14 @@ class SwapOrders extends aggregation(ServiceInterface, Collection) {
   }
 
   _saveMyOrders() {
-    let myOrders = this.items.filter(({ owner: { peer } }) => peer === SwapApp.services.room.peer)
+    let myOrders = this.items.filter(({ owner: { peer } }) => peer === storage.me.peer)
 
     // clean orders from other additional props
     // TODO need to add functionality to sync `requests` for users who going offline / online
     // problem: when I going online and persisting my orders need to show only online users requests,
     // but then user comes online need to change status. Ofc we can leave this bcs developers can do this themselves
     // with filters - skip requests where user is offline, but it looks like not very good
-    myOrders = myOrders.map((item) => util.pullProps(
+    myOrders = myOrders.map((item) => pullProps(
       item,
       'id',
       'owner',
@@ -176,11 +159,11 @@ class SwapOrders extends aggregation(ServiceInterface, Collection) {
       'isProcessing',
     ))
 
-    SwapApp.env.storage.setItem('myOrders', myOrders)
+    localStorage.setItem('myOrders', myOrders)
   }
 
   getMyOrders() {
-    return SwapApp.env.storage.getItem('myOrders') || []
+    return localStorage.getItem('myOrders') || []
   }
 
   getPeerOrders(peer) {
@@ -198,15 +181,15 @@ class SwapOrders extends aggregation(ServiceInterface, Collection) {
   create(data) {
     const order = this._create({
       ...data,
-      owner: SwapApp.services.auth.getPublicData(),
+      owner: storage.me,
     })
     this._saveMyOrders()
 
-    SwapApp.services.room.sendMessage([
+    room.sendMessage([
       {
         event: 'new order',
         data: {
-          order: util.pullProps(
+          order: pullProps(
             order,
             'id',
             'owner',
@@ -228,7 +211,7 @@ class SwapOrders extends aggregation(ServiceInterface, Collection) {
    */
   remove(orderId) {
     this.removeByKey(orderId)
-    SwapApp.services.room.sendMessage([
+    room.sendMessage([
       {
         event: 'remove order',
         data: {
@@ -238,17 +221,7 @@ class SwapOrders extends aggregation(ServiceInterface, Collection) {
     ])
     this._saveMyOrders()
   }
-
-  on(eventName, handler) {
-    events.subscribe(eventName, handler)
-    return this
-  }
-
-  off(eventName, handler) {
-    events.unsubscribe(eventName, handler)
-    return this
-  }
 }
 
 
-export default SwapOrders
+export default new OrderCollection()

@@ -1,7 +1,7 @@
-import SwapApp from 'swap.app'
+import room from './room'
 
 
-class Room {
+class SwapRoom {
 
   constructor({ swapId, participantPeer }) {
     this.swapId = swapId
@@ -9,7 +9,7 @@ class Room {
   }
 
   subscribe(eventName, handler) {
-    SwapApp.services.room.events.subscribe(eventName, ({ fromPeer, swapId, ...values }) => {
+    room.events.subscribe(eventName, ({ fromPeer, swapId, ...values }) => {
       if (fromPeer === this.peer && swapId === this.swapId) {
         handler(values)
       }
@@ -19,9 +19,9 @@ class Room {
   once(eventName, handler) {
     const self = this
 
-    SwapApp.services.room.events.subscribe(eventName, function ({ fromPeer, swapId, ...values }) {
+    room.events.subscribe(eventName, function ({ fromPeer, swapId, ...values }) {
       if (fromPeer === self.peer && swapId === self.swapId) {
-        console.error(`INCOME SwapSwapApp.services.room event "${eventName}"`)
+        console.error(`INCOME SwapRoom event "${eventName}"`)
 
         this.unsubscribe()
         handler(values)
@@ -35,9 +35,9 @@ class Room {
 
       // value - eventName
       if (typeof value === 'string') {
-        console.error(`OUTCOME SwapSwapApp.services.room event "${value}"`)
+        console.error(`OUTCOME SwapRoom event "${value}"`)
 
-        SwapApp.services.room.connection.sendTo(this.peer, JSON.stringify([
+        room.connection.sendTo(this.peer, JSON.stringify([
           {
             event: value,
             swapId: this.swapId,
@@ -47,18 +47,18 @@ class Room {
       // value - messages
       else if (Array.isArray(value)) {
         value.forEach(({ event }) => {
-          console.log(`OUTCOME SwapSwapApp.services.room event "${event}"`)
+          console.log(`OUTCOME SwapRoom event "${event}"`)
         })
 
-        SwapApp.services.room.connection.sendTo(this.peer, JSON.stringify(value))
+        room.connection.sendTo(this.peer, JSON.stringify(value))
       }
     }
     else {
       const [ eventName, message ] = args
 
-      console.log(`OUTCOME SwapSwapApp.services.room event "${eventName}"`)
+      console.log(`OUTCOME SwapRoom event "${eventName}"`)
 
-      SwapApp.services.room.connection.sendTo(this.peer, JSON.stringify([
+      room.connection.sendTo(this.peer, JSON.stringify([
         {
           event: eventName,
           data: {
@@ -72,4 +72,4 @@ class Room {
 }
 
 
-export default Room
+export default SwapRoom

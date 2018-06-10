@@ -1,41 +1,27 @@
-import SwapApp, { Events, ServiceInterface } from 'swap.app'
+import Events from './Events'
+import { storage } from './Storage'
+import { env } from './util'
 
 
-class SwapRoom extends ServiceInterface {
+class Room {
 
-  static get name() {
-    return 'room'
+  constructor() {
+    this.events   = new Events()
   }
 
-  constructor(config) {
-    super()
-
+  /**
+   *
+   * @param {object} config
+   */
+  init(config) {
     if (!config || typeof config !== 'object') {
-      throw new Error('SwapRoomService: "config" of type object required')
+      throw new Error('Room failed. "config" of type object required.')
     }
 
-    this._serviceName   = 'room'
-    this.events         = new Events()
-    this.config         = config
-    this.peer           = null
-  }
-
-  initService() {
-    if (!SwapApp.env.Ipfs) {
-      throw new Error('SwapRoomService: Ipfs required')
-    }
-    if (!SwapApp.env.IpfsRoom) {
-      throw new Error('SwapRoomService: IpfsRoom required')
-    }
-
-    const ipfs = new SwapApp.env.Ipfs(this.config)
-
-    ipfs.once('error', (err) => {
-      console.log('IPFS error!', err)
-    })
+    const ipfs = new env.Ipfs(config)
 
     ipfs.once('ready', () => ipfs.id((err, info) => {
-      console.info('IPFS ready!', info)
+      console.info('IPFS ready!')
 
       if (err) {
         throw err
@@ -49,9 +35,9 @@ class SwapRoom extends ServiceInterface {
   }
 
   _init({ peer, ipfsConnection }) {
-    this.peer = peer
+    storage.me.peer = peer
 
-    this.connection = SwapApp.env.IpfsRoom(ipfsConnection, '../swap.online', {
+    this.connection = env.IpfsRoom(ipfsConnection, 'jswaps', {
       pollInterval: 5000,
     })
 
@@ -63,19 +49,19 @@ class SwapRoom extends ServiceInterface {
   }
 
   handleUserOnline = (peer) => {
-    if (peer !== this.peer) {
+    if (peer !== storage.me.peer) {
       this.events.dispatch('user online', peer)
     }
   }
 
   handleUserOffline = (peer) => {
-    if (peer !== this.peer) {
+    if (peer !== storage.me.peer) {
       this.events.dispatch('user offline', peer)
     }
   }
 
   handleNewMessage = (message) => {
-    if (message.from === this.peer) {
+    if (message.from === storage.me.peer) {
       return
     }
 
@@ -111,4 +97,4 @@ class SwapRoom extends ServiceInterface {
 }
 
 
-export default SwapRoom
+export default new Room()
