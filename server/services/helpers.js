@@ -19,7 +19,7 @@ const findOrder = (app) => (req, res, next) => {
 
   console.log('id', id)
   let order = app.services.orders.getByKey(id)
-  if (!order) return res.status(404).send('no such order')
+  if (!order) return res.status(404).json({ error: 'no such order' })
 
   next && next(order)
 
@@ -29,12 +29,11 @@ const findOrder = (app) => (req, res, next) => {
 const findSwap = (app) => (req, res, next) => {
   findOrder(app)(req, res, (order) => {
     console.log('order', orderView(order))
-    if (!order.isProcessing) return res.status(400).end()
+    if (!order.isProcessing) return res.status(400).json({ error: 'order is not processing' })
 
     const name = decodeFlow(order)
     const swap = new Swap(order.id, flows[name])
 
-    console.log('swap', swapView(swap))
     next && next(swap)
   })
 }
