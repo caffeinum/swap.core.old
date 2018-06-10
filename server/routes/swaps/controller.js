@@ -11,7 +11,7 @@ const getSwap = (req, res) => {
 
 const goSwap = (req, res) => {
   findSwap(app)(req, res, (swap) => {
-    if ( swap.flow && swap.flow.step )
+    if ( swap.flow && swap.flow.state.step )
       return res.json(swapView(swap))
 
     const flow = swap.flow
