@@ -23,7 +23,7 @@ class ServiceInterface {
         dependsOnMap[Service.name] = {
           initialized: false,
         }
-        SwapApp.services[Service.name]._addWaitRelationHandler(() => {
+        SwapApp.services && SwapApp.services[Service.name]._addWaitRelationHandler(() => {
           this._dependsOn[Service.name].initialized = true
 
           const areAllExpectsInitialized = Object.keys(this._dependsOn).every((serviceName) => (
