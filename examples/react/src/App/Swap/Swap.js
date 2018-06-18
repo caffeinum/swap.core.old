@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import SwapApp from '../../../swap-core/swap.app'
+import SwapApp from 'swap.app'
 
 import BtcToEth from './BtcToEth'
 import EthToBtc from './EthToBtc'
@@ -31,7 +31,7 @@ export default class Swap extends Component {
     const SwapComponent = swapComponents[`${firstPart.toLowerCase()}${lastPart.toLowerCase()}`]
 
     return (
-      <div style={{ paddingLeft: '30px' }}>
+      <div style={{ paddingLeft: '30px', paddingBottom: '100px' }}>
         <SwapComponent orderId={orderId} />
       </div>
     )

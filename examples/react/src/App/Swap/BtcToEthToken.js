@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react'
-import { BTC2ETHTOKEN } from '../../../swap-core/swap.flows'
-import Swap from '../../../swap-core/swap.swap'
+import { BTC2ETHTOKEN } from 'swap.flows'
+import Swap from 'swap.swap'
 import Loader from '../Loader/Loader'
 
 
@@ -48,11 +48,7 @@ export default class BtcToEthToken extends Component {
       <div>
         {
           this.swap.id && (
-            this.swap.isMy ? (
-              <strong>{this.swap.sellAmount} {this.swap.sellCurrency} &#10230; {this.swap.buyAmount} {this.swap.buyCurrency}</strong>
-            ) : (
-              <strong>{this.swap.buyAmount} {this.swap.buyCurrency} &#10230; {this.swap.sellAmount} {this.swap.sellCurrency}</strong>
-            )
+            <strong>{this.swap.sellAmount.toNumber()} {this.swap.sellCurrency} &#10230; {this.swap.buyAmount.toNumber()} {this.swap.buyCurrency}</strong>
           )
         }
 
@@ -68,7 +64,7 @@ export default class BtcToEthToken extends Component {
             )
           )
         }
-        
+
         {
           flow.isWaitingForOwner && (
             <Fragment>
@@ -77,7 +73,7 @@ export default class BtcToEthToken extends Component {
             </Fragment>
           )
         }
-        
+
         {
           (flow.step === 1 || flow.isMeSigned) && (
             <Fragment>
@@ -116,7 +112,7 @@ export default class BtcToEthToken extends Component {
                     <h3>Not enough money for this swap. Please charge the balance</h3>
                     <div>
                       <div>Your balance: <strong>{flow.balance}</strong> {this.swap.sellCurrency}</div>
-                      <div>Required balance: <strong>{this.swap.sellAmount}</strong> {this.swap.sellCurrency}</div>
+                      <div>Required balance: <strong>{this.swap.sellAmount.toNumber()}</strong> {this.swap.sellCurrency}</div>
                       <hr />
                       <span>{flow.address}</span>
                     </div>
@@ -138,6 +134,22 @@ export default class BtcToEthToken extends Component {
                 (flow.step === 4 || flow.btcScriptValues) && (
                   <Fragment>
                     <h3>3. Creating Bitcoin Script. Please wait, it will take a while</h3>
+                    {
+                      flow.btcScriptCreatingTransactionHash && (
+                        <div>
+                          Transaction:
+                          <strong>
+                            <a
+                              href={`https://www.blocktrail.com/tBTC/tx/${flow.btcScriptCreatingTransactionHash}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              {flow.btcScriptCreatingTransactionHash}
+                            </a>
+                          </strong>
+                        </div>
+                      )
+                    }
                     {
                       !flow.btcScriptValues && (
                         <Loader />
@@ -166,11 +178,17 @@ export default class BtcToEthToken extends Component {
                 )
               }
               {
-                flow.ethSwapWithdrawTransactionUrl && (
+                flow.ethSwapWithdrawTransactionHash && (
                   <div>
                     Transaction:
                     <strong>
-                      <a href={flow.ethSwapWithdrawTransactionUrl} target="_blank">{flow.ethSwapWithdrawTransactionUrl}</a>
+                      <a
+                        href={`https://rinkeby.etherscan.io/tx/${flow.ethSwapWithdrawTransactionHash}`}
+                        target="_blank"
+                        rel="noreferrer noopener"
+                      >
+                        {flow.ethSwapWithdrawTransactionHash}
+                      </a>
                     </strong>
                   </div>
                 )

@@ -5,6 +5,6 @@ import BtcSwap from './BtcSwap'
 
 export {
   EthSwap,
-  EthTokenSwap,
   BtcSwap,
+  EthTokenSwap,
 }

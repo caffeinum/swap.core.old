@@ -1,10 +1,9 @@
 {
-  "name": "app",
+  "name": "swap-core-react-example",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build:swapcore": "NODE_ENV=production ../../node_modules/webpack-cli/bin/cli.js --config webpack.config.babel.js",
-    "start": "react-scripts start",
+    "start": "rimraf ./node_modules/swap.* && npx babel ../../src/ --out-dir ./swap && mv ./swap/* ./node_modules && react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
@@ -18,6 +17,7 @@
     "web3": "^1.0.0-beta.34"
   },
   "devDependencies": {
-    "react-scripts": "^1.1.4"
+    "react-scripts": "^1.1.4",
+    "rimraf": "^2.6.2"
   }
 }

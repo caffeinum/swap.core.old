@@ -1,4 +1,4 @@
-import SwapApp from '../swap.app'
+import SwapApp from 'swap.app'
 import Room from './Room'
 
 
@@ -37,8 +37,6 @@ class Flow {
 
     // wait events placed
     setTimeout(() => {
-      console.log('GO INITIAL STEP', this.state.step)
-
       this.goStep(this.state.step)
     }, 0)
   }
@@ -119,14 +117,6 @@ class Flow {
   goStep(index) {
     this.swap.events.dispatch('enter step', index)
     this.steps[index]()
-  }
-
-  enterStep(index) {
-    return new Promise(resolve => {
-      this.on('enter step', (step) => {
-        if (step == index) resolve(step)
-      })
-    })
   }
 
   setState(values, save) {

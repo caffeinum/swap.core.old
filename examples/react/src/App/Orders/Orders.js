@@ -1,5 +1,5 @@
 import React, { Fragment, Component } from 'react'
-import SwapApp from '../../../swap-core/swap.app'
+import SwapApp from 'swap.app'
 
 
 export default class Orders extends Component {
@@ -44,8 +44,8 @@ export default class Orders extends Component {
     const data = {
       buyCurrency: 'ETH',
       sellCurrency: 'BTC',
-      buyAmount: 1,
-      sellAmount: 0.001,
+      buyAmount: 0.013,
+      sellAmount: 0.0013,
     }
 
     SwapApp.services.orders.create(data)
@@ -93,8 +93,6 @@ export default class Orders extends Component {
     const { orders } = this.state
     const { myPeer, activeOrderId } = this.props
 
-    console.log('orders', orders)
-
     return (
       <div>
         <button onClick={this.createOrder}>Create Order</button>
@@ -123,8 +121,8 @@ export default class Orders extends Component {
                       <tr key={id} style={{ backgroundColor: myPeer === ownerPeer ? '#fff4d5' : '' }}>
                         <td>{exchangeRate}</td>
                         <td>{reputation}</td>
-                        <td>{sellAmount}</td>
-                        <td>{buyAmount}</td>
+                        <td>{sellAmount.toNumber()}</td>
+                        <td>{buyAmount.toNumber()}</td>
                         {
                           isProcessing ? (
                             <td>

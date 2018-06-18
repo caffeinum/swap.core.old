@@ -1,8 +1,5 @@
-import SwapApp, { SwapInterface } from '../swap.app'
+import SwapApp, { SwapInterface } from 'swap.app'
 
-
-const utcNow = () => Math.floor(Date.now() / 1000)
-const getLockTime = () => utcNow() + 3600 * 3 // 3 days from now
 
 class BtcSwap extends SwapInterface {
 
@@ -42,19 +39,6 @@ class BtcSwap extends SwapInterface {
 
   /**
    *
-   * @param {object} script
-   * @returns {string}
-   * @private
-   */
-  _getScriptAddress(script) {
-    const scriptPubKey  = SwapApp.env.bitcoin.script.scriptHash.output.encode(SwapApp.env.bitcoin.crypto.hash160(script))
-    const scriptAddress = SwapApp.env.bitcoin.address.fromOutputScript(scriptPubKey, this.network)
-
-    return scriptAddress
-  }
-
-  /**
-   *
    * @param {object} data
    * @param {object} data.script
    * @param {*} data.txRaw
@@ -84,25 +68,24 @@ class BtcSwap extends SwapInterface {
    *
    * @param {object} data
    * @param {string} data.secretHash
-   * @param {string} data.btcOwnerPublicKey
-   * @param {string} data.ethOwnerPublicKey
+   * @param {string} data.ownerPublicKey
+   * @param {string} data.recipientPublicKey
    * @param {number} data.lockTime
-   * @returns {{address: *, script: (*|{ignored}), secretHash: *, btcOwnerPublicKey: *, ethOwnerPublicKey: *, lockTime: *}}
+   * @returns {{address: *, script: (*|{ignored}), secretHash: *, ownerPublicKey: *, recipientPublicKey: *, lockTime: *}}
    */
   createScript(data) {
-    const { secretHash, btcOwnerPublicKey, ethOwnerPublicKey, lockTime: _lockTime } = data
-    const lockTime = _lockTime || getLockTime()
+    const { secretHash, ownerPublicKey, recipientPublicKey, lockTime } = data
 
     const script = SwapApp.env.bitcoin.script.compile([
       SwapApp.env.bitcoin.opcodes.OP_RIPEMD160,
       Buffer.from(secretHash, 'hex'),
       SwapApp.env.bitcoin.opcodes.OP_EQUALVERIFY,
 
-      Buffer.from(ethOwnerPublicKey, 'hex'),
+      Buffer.from(recipientPublicKey, 'hex'),
       SwapApp.env.bitcoin.opcodes.OP_EQUAL,
       SwapApp.env.bitcoin.opcodes.OP_IF,
 
-      Buffer.from(ethOwnerPublicKey, 'hex'),
+      Buffer.from(recipientPublicKey, 'hex'),
       SwapApp.env.bitcoin.opcodes.OP_CHECKSIG,
 
       SwapApp.env.bitcoin.opcodes.OP_ELSE,
@@ -110,7 +93,7 @@ class BtcSwap extends SwapInterface {
       SwapApp.env.bitcoin.script.number.encode(lockTime),
       SwapApp.env.bitcoin.opcodes.OP_CHECKLOCKTIMEVERIFY,
       SwapApp.env.bitcoin.opcodes.OP_DROP,
-      Buffer.from(btcOwnerPublicKey, 'hex'),
+      Buffer.from(ownerPublicKey, 'hex'),
       SwapApp.env.bitcoin.opcodes.OP_CHECKSIG,
 
       SwapApp.env.bitcoin.opcodes.OP_ENDIF,
@@ -120,32 +103,59 @@ class BtcSwap extends SwapInterface {
     const scriptAddress = SwapApp.env.bitcoin.address.fromOutputScript(scriptPubKey, this.network)
 
     return {
-      address: scriptAddress,
+      scriptAddress,
       script,
-      secretHash,
-      btcOwnerPublicKey,
-      ethOwnerPublicKey,
-      lockTime,
     }
   }
 
   /**
    *
    * @param {object} data
-   * @param {object} data.script
-   * @param {string} data.amount
+   * @param {string} data.recipientPublicKey
+   * @param {number} data.lockTime
+   * @param {object} expected
+   * @param {number} expected.value
+   * @param {number} expected.lockTime
+   * @param {string} expected.recipientPublicKey
+   */
+  async checkScript(data, expected) {
+    const { recipientPublicKey, lockTime } = data
+    const { scriptAddress, script } = this.createScript(data)
+
+    const unspents      = await this.fetchUnspents(scriptAddress)
+    const totalUnspent  = unspents.reduce((summ, { satoshis }) => summ + satoshis, 0)
+    const expectedValue = expected.value.multipliedBy(1e8)
+
+    if (expectedValue.isGreaterThan(totalUnspent)) {
+      return `Expected script value: ${expectedValue.toNumber()}, got: ${totalUnspent}`
+    }
+    if (expected.lockTime > lockTime) {
+      return `Expected script lockTime: ${expected.lockTime}, got: ${lockTime}`
+    }
+    if (expected.recipientPublicKey !== recipientPublicKey) {
+      return `Expected script recipient publicKey: ${expected.recipientPublicKey}, got: ${recipientPublicKey}`
+    }
+  }
+
+  /**
+   *
+   * @param {object} data
+   * @param {object} data.scriptValues
+   * @param {BigNumber} data.amount
+   * @param {function} handleTransactionHash
    * @returns {Promise}
    */
-  fundScript(data) {
-    const { script, amount } = data
+  fundScript(data, handleTransactionHash) {
+    const { scriptValues, amount } = data
 
     return new Promise(async (resolve, reject) => {
       try {
-        const scriptAddress = this._getScriptAddress(script)
+        const { scriptAddress } = this.createScript(scriptValues)
+
         const tx            = new SwapApp.env.bitcoin.TransactionBuilder(this.network)
         const unspents      = await this.fetchUnspents(SwapApp.services.auth.accounts.btc.getAddress())
 
-        const fundValue     = Math.floor(Number(amount) * 1e8)
+        const fundValue     = amount.multipliedBy(1e8).toNumber() // TODO check for number length (if need slice it)
         const feeValue      = 15000 // TODO how to get this value
         const totalUnspent  = unspents.reduce((summ, { satoshis }) => summ + satoshis, 0)
         const skipValue     = totalUnspent - fundValue - feeValue
@@ -159,16 +169,18 @@ class BtcSwap extends SwapInterface {
 
         const txRaw = tx.buildIncomplete()
 
-        let result
+        if (typeof handleTransactionHash === 'function') {
+          handleTransactionHash(txRaw.getId())
+        }
 
         try {
-          result = await this.broadcastTx(txRaw.toHex())
+          const result = await this.broadcastTx(txRaw.toHex())
+
+          resolve(result)
         }
         catch (err) {
           reject(err)
         }
-
-        resolve(result)
       }
       catch (err) {
         reject(err)
@@ -179,17 +191,18 @@ class BtcSwap extends SwapInterface {
   /**
    *
    * @param {object} data
-   * @param {object} data.script
+   * @param {object} data.scriptValues
    * @param {string} data.secret
    * @param {function} handleTransactionHash
    * @returns {Promise}
    */
   withdraw(data, handleTransactionHash) {
-    const { script, secret } = data
+    const { scriptValues, secret } = data
 
     return new Promise(async (resolve, reject) => {
       try {
-        const scriptAddress = this._getScriptAddress(script)
+        const { script, scriptAddress } = this.createScript(scriptValues)
+
         const tx            = new SwapApp.env.bitcoin.TransactionBuilder(this.network)
         const unspents      = await this.fetchUnspents(scriptAddress)
 
@@ -211,9 +224,14 @@ class BtcSwap extends SwapInterface {
           handleTransactionHash(txRaw.getId())
         }
 
-        const result = await this.broadcastTx(txRaw.toHex())
+        try {
+          const result = await this.broadcastTx(txRaw.toHex())
 
-        resolve(result)
+          resolve(result)
+        }
+        catch (err) {
+          reject(err)
+        }
       }
       catch (err) {
         reject(err)
@@ -224,18 +242,17 @@ class BtcSwap extends SwapInterface {
   /**
    *
    * @param {object} data
-   * @param {object} data.script
-   * @param {number} data.lockTime
+   * @param {object} data.scriptValues
    * @param {string} data.secret
    * @param {function} handleTransactionHash
    * @returns {Promise}
    */
   refund(data, handleTransactionHash) {
-    const { script, lockTime, secret } = data
+    const { scriptValues, secret } = data
 
     return new Promise(async (resolve, reject) => {
       try {
-        const scriptAddress = this._getScriptAddress(script)
+        const { script, scriptAddress } = this.createScript(scriptValues)
 
         const tx            = new SwapApp.env.bitcoin.TransactionBuilder(this.network)
         const unspents      = await this.fetchUnspents(scriptAddress)
@@ -243,7 +260,7 @@ class BtcSwap extends SwapInterface {
         const feeValue      = 15000 // TODO how to get this value
         const totalUnspent  = unspents.reduce((summ, { satoshis }) => summ + satoshis, 0)
 
-        tx.setLockTime(lockTime)
+        tx.setLockTime(scriptValues.lockTime)
         unspents.forEach(({ txid, vout }) => tx.addInput(txid, vout, 0xfffffffe))
         tx.addOutput(SwapApp.services.auth.accounts.btc.getAddress(), totalUnspent - feeValue)
 
@@ -259,9 +276,14 @@ class BtcSwap extends SwapInterface {
           handleTransactionHash(txRaw.getId())
         }
 
-        const result = await this.broadcastTx(txRaw.toHex())
+        try {
+          const result = await this.broadcastTx(txRaw.toHex())
 
-        resolve(result)
+          resolve(result)
+        }
+        catch (err) {
+          reject(err)
+        }
       }
       catch (err) {
         reject(err)

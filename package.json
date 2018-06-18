@@ -25,6 +25,7 @@
     "dev:alice": "export PORT=7777; export DEBUG_PORT=7077 && npm run server-dev -- 1234567890",
     "dev:bob": "export PORT=8888; export DEBUG_PORT=8088 && npm run server-dev -- 9876543210",
     "dev": "babel -w ./src --out-dir ./lib",
+    "clean": "rimraf ./lib",
     "build": "npm run clean && babel ./src --out-dir ./lib",
     "dev:umd": "NODE_ENV=development webpack --config webpack.config.babel.js --watch",
     "build:umd": "NODE_ENV=production webpack --config webpack.config.babel.js"
@@ -42,7 +43,9 @@
     "node-localstorage": "^1.3.1",
     "pm2": "^2.10.4",
     "request-promise-native": "^1.0.5",
-    "web3": "^1.0.0-beta.34"
+    "web3": "^1.0.0-beta.34",
+    "bignumber.js": "^7.2.1",
+    "typeforce": "^1.12.0"
   },
   "devDependencies": {
     "ava": "^1.0.0-beta.4",
@@ -63,24 +66,9 @@
     "cpx": "^1.5.0",
     "mocha": "^5.2.0",
     "nodemon": "^1.17.5",
+    "rimraf": "^2.6.2",
     "webpack": "^4.6.0",
-    "webpack-cli": "^3.0.3"
-  },
-  "ava": {
-    "files": [
-      "./src/swaps/btcSwap.spec.js"
-    ],
-    "require": [
-      "./bootstrapAvaTests.js"
-    ],
-    "concurrency": 5,
-    "failFast": true,
-    "failWithoutAssertions": false,
-    "compileEnhancements": false,
-    "babel": {
-      "testOptions": {
-        "babelrc": false
-      }
-    }
+    "webpack-cli": "^3.0.3",
+    "webpack-raw-bundler": "^1.3.6"
   }
 }

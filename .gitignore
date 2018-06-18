@@ -8,6 +8,10 @@ storage/
 *.example
 
 node_modules
-lib
 
-swap-core
+*-lock.*
+
+examples/react/swap
+examples/vanilla/swap
+umd
+lib

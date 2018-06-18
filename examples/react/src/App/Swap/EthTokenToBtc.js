@@ -1,10 +1,10 @@
 import React, { Component, Fragment } from 'react'
-import { ETHTOKEN2BTC } from '../../../swap-core/swap.flows'
-import Swap from '../../../swap-core/swap.swap'
+import { ETHTOKEN2BTC } from 'swap.flows'
+import Swap from 'swap.swap'
 import Loader from '../Loader/Loader'
 
 
-export default class EthToBtc extends Component {
+export default class EthTokenToBtc extends Component {
 
   constructor({ orderId }) {
     super()
@@ -42,18 +42,38 @@ export default class EthToBtc extends Component {
     this.swap.flow.syncBalance()
   }
 
+  tryRefund = () => {
+    this.swap.flow.tryRefund()
+  }
+
   render() {
     const { flow } = this.state
 
     return (
       <div>
+        <button onClick={this.tryRefund}>TRY REFUND</button>
+        {
+          flow.refundTransactionHash && (
+            <div>
+              Transaction:
+              <strong>
+                <a
+                  href={`https://rinkeby.etherscan.io/tx/${flow.refundTransactionHash}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {flow.refundTransactionHash}
+                </a>
+              </strong>
+            </div>
+          )
+        }
+        <br />
+        <br />
+
         {
           this.swap.id && (
-            this.swap.isMy ? (
-              <strong>{this.swap.sellAmount} {this.swap.sellCurrency} &#10230; {this.swap.buyAmount} {this.swap.buyCurrency}</strong>
-            ) : (
-              <strong>{this.swap.buyAmount} {this.swap.buyCurrency} &#10230; {this.swap.sellAmount} {this.swap.sellCurrency}</strong>
-            )
+            <strong>{this.swap.sellAmount.toNumber()} {this.swap.sellCurrency} &#10230; {this.swap.buyAmount.toNumber()} {this.swap.buyCurrency}</strong>
           )
         }
 
@@ -100,15 +120,21 @@ export default class EthToBtc extends Component {
                 )
               }
               {
-                (flow.isSignFetching || flow.signTransactionUrl) && (
+                (flow.isSignFetching || flow.signTransactionHash) && (
                   <Fragment>
                     <h4>Please wait. Confirmation processing</h4>
                     {
-                      flow.signTransactionUrl && (
+                      flow.signTransactionHash && (
                         <div>
                           Transaction:
                           <strong>
-                            <a href={flow.signTransactionUrl} rel="noopener noreferrer" target="_blank">{flow.signTransactionUrl}</a>
+                            <a
+                              href={`https://rinkeby.etherscan.io/tx/${flow.signTransactionHash}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              {flow.signTransactionHash}
+                            </a>
                           </strong>
                         </div>
                       )
@@ -151,7 +177,7 @@ export default class EthToBtc extends Component {
                           rel="noopener noreferrer"
                         >
                           {flow.btcScriptValues.address}
-                          </a>
+                        </a>
                       </strong>
                     </div>
                     <br />
@@ -162,11 +188,11 @@ export default class EthToBtc extends Component {
     Buffer.from('${flow.btcScriptValues.secretHash}', 'hex'),
     bitcoin.core.opcodes.OP_EQUALVERIFY,
 
-    Buffer.from('${flow.btcScriptValues.ethOwnerPublicKey}', 'hex'),
+    Buffer.from('${flow.btcScriptValues.recipientPublicKey}', 'hex'),
     bitcoin.core.opcodes.OP_EQUAL,
     bitcoin.core.opcodes.OP_IF,
 
-    Buffer.from('${flow.btcScriptValues.ethOwnerPublicKey}', 'hex'),
+    Buffer.from('${flow.btcScriptValues.recipientPublicKey}', 'hex'),
     bitcoin.core.opcodes.OP_CHECKSIG,
 
     bitcoin.core.opcodes.OP_ELSE,
@@ -174,7 +200,7 @@ export default class EthToBtc extends Component {
     bitcoin.core.script.number.encode(${flow.btcScriptValues.lockTime}),
     bitcoin.core.opcodes.OP_CHECKLOCKTIMEVERIFY,
     bitcoin.core.opcodes.OP_DROP,
-    Buffer.from('${flow.btcScriptValues.btcOwnerPublicKey}', 'hex'),
+    Buffer.from('${flow.btcScriptValues.ownerPublicKey}', 'hex'),
     bitcoin.core.opcodes.OP_CHECKSIG,
 
     bitcoin.core.opcodes.OP_ENDIF,
@@ -199,7 +225,7 @@ export default class EthToBtc extends Component {
                     <h3>Not enough money for this swap. Please fund the balance</h3>
                     <div>
                       <div>Your balance: <strong>{flow.balance}</strong> {this.swap.sellCurrency}</div>
-                      <div>Required balance: <strong>{this.swap.sellAmount}</strong> {this.swap.sellCurrency}</div>
+                      <div>Required balance: <strong>{this.swap.sellAmount.toNumber()}</strong> {this.swap.sellCurrency}</div>
                       <hr />
                       <span>{flow.address}</span>
                     </div>
@@ -223,16 +249,16 @@ export default class EthToBtc extends Component {
                 )
               }
               {
-                flow.ethSwapCreationTransactionUrl && (
+                flow.ethSwapCreationTransactionHash && (
                   <div>
                     Transaction:
                     <strong>
                       <a
-                        href={flow.ethSwapCreationTransactionUrl}
+                        href={`https://rinkeby.etherscan.io/tx/${flow.ethSwapCreationTransactionHash}`}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        {flow.ethSwapCreationTransactionUrl}
+                        {flow.ethSwapCreationTransactionHash}
                       </a>
                     </strong>
                   </div>
@@ -263,16 +289,16 @@ export default class EthToBtc extends Component {
                 )
               }
               {
-                flow.btcSwapWithdrawTransactionUrl && (
+                flow.btcSwapWithdrawTransactionHash && (
                   <div>
                     Transaction:
                     <strong>
                       <a
-                        href="https://www.blocktrail.com/tBTC/tx/{flow.btcSwapWithdrawTransactionUrl}"
+                        href={`https://www.blocktrail.com/tBTC/tx/${flow.btcSwapWithdrawTransactionHash}`}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        {flow.btcSwapWithdrawTransactionUrl}
+                        {flow.btcSwapWithdrawTransactionHash}
                       </a>
                     </strong>
                   </div>
