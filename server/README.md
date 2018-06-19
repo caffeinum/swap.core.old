@@ -17,6 +17,10 @@ To use your own wallet, place `.env` file in the root with your keys:
 
 2. Run server with
 
+  `npm run server:build`
+
+  and then
+
   `npm run server`
 
   or
