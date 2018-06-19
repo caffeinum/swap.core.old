@@ -11,19 +11,15 @@
   },
   "main": "lib/index.js",
   "scripts": {
+    "server": "npm run server:build && node server/app.js",
+    "server:dev": "rimraf ./server/lib && babel -w ./src --out-dir ./server/lib --plugins=add-module-exports",
+    "server:clean": "rm -rf storage/**/swap.flow.*; rm -rf storage/**/swap.swap.*; rimraf ./server/lib",
+    "server:build": "rimraf ./server/lib && babel ./src --out-dir ./server/lib --plugins=add-module-exports",
     "test": "ava",
     "test-api": "mocha --timeout 10000 server/test",
-    "clean": "rm -rf lib/ && npm run server:clean",
-    "server:clean": "rm -rf storage/**/swap.flow.*; rm -rf storage/**/swap.swap.*",
     "watch": "cpx './src/**/*.js' ./app/src/swap -w",
-    "server:dev": "npm run build && nodemon server/app.js",
-    "server": "npm run build && node server/app.js",
     "pm2": "pm2 start ecosystem.config.js --only api",
-    "pm2:dev": "pm2 start ecosystem.config.js",
-    "alice": "export PORT=7777 && npm run server -- 1234567890",
-    "bob": "export PORT=8888 && npm run server -- 9876543210",
-    "dev:alice": "export PORT=7777; export DEBUG_PORT=7077 && npm run server-dev -- 1234567890",
-    "dev:bob": "export PORT=8888; export DEBUG_PORT=8088 && npm run server-dev -- 9876543210",
+    "pm2:dev": "pm2 start ecosystem.config.js && pm2 log",
     "dev": "babel -w ./src --out-dir ./lib",
     "clean": "rimraf ./lib",
     "build": "npm run clean && babel ./src --out-dir ./lib",
@@ -34,6 +30,8 @@
     "bitcoinjs-lib": "~3.3.2"
   },
   "dependencies": {
+    "app-module-path": "^2.2.0",
+    "bignumber.js": "^7.2.1",
     "bitcoinjs-lib": "^3.3.2",
     "body-parser": "^1.18.3",
     "dotenv": "^5.0.1",
@@ -43,9 +41,8 @@
     "node-localstorage": "^1.3.1",
     "pm2": "^2.10.4",
     "request-promise-native": "^1.0.5",
-    "web3": "^1.0.0-beta.34",
-    "bignumber.js": "^7.2.1",
-    "typeforce": "^1.12.0"
+    "typeforce": "^1.12.0",
+    "web3": "^1.0.0-beta.34"
   },
   "devDependencies": {
     "ava": "^1.0.0-beta.4",

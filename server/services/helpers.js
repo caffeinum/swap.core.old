@@ -1,6 +1,5 @@
-const flows = require('../../lib/swap.flows')
-// const { Swap } = require('./swap')
-const Swap = require('../../lib/swap.swap').default
+const flows = require('swap.flows')
+const Swap = require('swap.swap').default
 
 const status = (order) => !order ? null : {
   id: order.id,
@@ -31,8 +30,8 @@ const findSwap = (app) => (req, res, next) => {
     console.log('order', orderView(order))
     if (!order.isProcessing) return res.status(400).json({ error: 'order is not processing' })
 
-    const name = decodeFlow(order)
-    const swap = new Swap(order.id, flows[name])
+    const Flow = decodeFlow(order)
+    const swap = new Swap(order.id, Flow)
 
     next && next(swap)
   })
@@ -64,7 +63,7 @@ const decodeFlow = (swap) => {
   const lastPart      = isMyOrder ? buyCurrency : sellCurrency
   const flowName = `${firstPart.toUpperCase()}2${lastPart.toUpperCase()}`
 
-  return flowName
+  return flows[flowName]
 }
 
 const swapView = (swap) => {
@@ -84,7 +83,7 @@ const orderView = (order) => {
     buyAmount, buyCurrency, sellAmount, sellCurrency,
     isRequested, isProcessing, isAccepted,
     participant, requests,
-    owner: { peer, reputation }
+    owner,
   } = order
 
   return {
@@ -92,7 +91,7 @@ const orderView = (order) => {
     buyAmount, buyCurrency, sellAmount, sellCurrency,
     isRequested, isProcessing, isAccepted,
     participant, requests,
-    owner: { peer, reputation }
+    owner,
   }
 }
 
@@ -120,6 +119,7 @@ const setFlow = (swap) => {
 
 module.exports = {
   status,
+  flows,
   sendStatus,
   findOrder,
   findSwap,

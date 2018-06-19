@@ -1,4 +1,4 @@
-const swapApp = require('../../lib/swap.app').default
+const swapApp = require('swap.app').default
 
 const { env, wallet, swaps, services } = require('./services')
 
@@ -16,6 +16,6 @@ swapApp.setup(config)
 
 const app = swapApp
 
-console.log('created swap app, me:', wallet.config)
+console.log('created swap app, me:', wallet.view())
 
 module.exports = { app, wallet }

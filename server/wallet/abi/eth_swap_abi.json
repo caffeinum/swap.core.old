@@ -3,100 +3,6 @@
     "constant": false,
     "inputs": [
       {
-        "name": "_ownerAddress",
-        "type": "address"
-      }
-    ],
-    "name": "abort",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "_participantAddress",
-        "type": "address"
-      }
-    ],
-    "name": "close",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "_secretHash",
-        "type": "bytes20"
-      },
-      {
-        "name": "_participantAddress",
-        "type": "address"
-      }
-    ],
-    "name": "createSwap",
-    "outputs": [],
-    "payable": true,
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "_participantAddress",
-        "type": "address"
-      }
-    ],
-    "name": "refund",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "_ratingContractAddress",
-        "type": "address"
-      }
-    ],
-    "name": "setReputationAddress",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "_participantAddress",
-        "type": "address"
-      }
-    ],
-    "name": "sign",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "constructor"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
         "name": "_secret",
         "type": "bytes32"
       },
@@ -109,60 +15,6 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "_ownerAddress",
-        "type": "address"
-      }
-    ],
-    "name": "checkSign",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "_ownerAddress",
-        "type": "address"
-      },
-      {
-        "name": "_participantAddress",
-        "type": "address"
-      }
-    ],
-    "name": "getInfo",
-    "outputs": [
-      {
-        "name": "",
-        "type": "bytes32"
-      },
-      {
-        "name": "",
-        "type": "bytes20"
-      },
-      {
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -185,17 +37,17 @@
     "type": "function"
   },
   {
-    "constant": true,
-    "inputs": [],
-    "name": "owner",
-    "outputs": [
+    "constant": false,
+    "inputs": [
       {
-        "name": "",
+        "name": "_ratingContractAddress",
         "type": "address"
       }
     ],
+    "name": "setReputationAddress",
+    "outputs": [],
     "payable": false,
-    "stateMutability": "view",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -224,7 +76,7 @@
   {
     "constant": true,
     "inputs": [],
-    "name": "ratingContractAddress",
+    "name": "owner",
     "outputs": [
       {
         "name": "",
@@ -233,6 +85,20 @@
     ],
     "payable": false,
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_ownerAddress",
+        "type": "address"
+      }
+    ],
+    "name": "abort",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -271,26 +137,163 @@
     "type": "function"
   },
   {
-    "constant": true,
+    "constant": false,
     "inputs": [
       {
-        "name": "_ownerAddress",
-        "type": "address"
+        "name": "_secretHash",
+        "type": "bytes20"
       },
       {
         "name": "_participantAddress",
         "type": "address"
       }
     ],
-    "name": "unsafeGetSecret",
+    "name": "createSwap",
+    "outputs": [],
+    "payable": true,
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "_ownerAddress",
+        "type": "address"
+      }
+    ],
+    "name": "checkSign",
     "outputs": [
       {
         "name": "",
-        "type": "bytes32"
+        "type": "uint256"
       }
     ],
     "payable": false,
     "stateMutability": "view",
     "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_participantAddress",
+        "type": "address"
+      }
+    ],
+    "name": "close",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "ratingContractAddress",
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_participantAddress",
+        "type": "address"
+      }
+    ],
+    "name": "sign",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "_ownerAddress",
+        "type": "address"
+      }
+    ],
+    "name": "getBalance",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_participantAddress",
+        "type": "address"
+      }
+    ],
+    "name": "refund",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [],
+    "name": "Sign",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "createdAt",
+        "type": "uint256"
+      }
+    ],
+    "name": "CreateSwap",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [],
+    "name": "Withdraw",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [],
+    "name": "Close",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [],
+    "name": "Refund",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [],
+    "name": "Abort",
+    "type": "event"
   }
 ]

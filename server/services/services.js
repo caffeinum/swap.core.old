@@ -4,15 +4,15 @@ const IpfsRoom = require('ipfs-pubsub-room')
 const id = require('./id')
 console.log('[WALLET] use id =', id)
 
-const LocalStorage = require('node-localstorage').LocalStorage
-const storage = new LocalStorage('./storage/' + id)
+const Storage = require('./storage')
+const storage = new Storage('./storage/' + id)
 
 const { Wallet, Swaps } = require('../wallet')
-const wallet = new Wallet(storage)
+const wallet = new Wallet()
 
-const SwapAuth = require('../../lib/services/swap.auth').default
-const SwapRoom = require('../../lib/services/swap.room').default
-const SwapOrders = require('../../lib/services/swap.orders').default
+const SwapAuth = require('swap.auth')
+const SwapRoom = require('swap.room')
+const SwapOrders = require('swap.orders')
 
 const ipfs_config = {
   repo: '.ipfs/' + id,
@@ -33,7 +33,7 @@ module.exports = {
     web3: wallet.ethereum.core,
   },
   services: [
-    new SwapAuth(wallet.auth),
+    wallet.auth,
     new SwapRoom(ipfs_config),
     new SwapOrders(),
   ],
