@@ -49,7 +49,11 @@ class Wallet {
   }
 
   view() {
-    return this.auth.getPublicData()
+    return {
+      etherscan: `https://rinkeby.etherscan.io/address/${this.auth.accounts.eth.address}`,
+      blockchain: `https://testnet.blockchain.info/address/${this.auth.accounts.btc.getAddress()}`,
+      ...this.auth.getPublicData()
+    }
   }
 
 }
