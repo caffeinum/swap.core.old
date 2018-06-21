@@ -1,5 +1,7 @@
-const { findSwap, swapView, decodeFlow, flows } = require('../../services/helpers')
-const { app, wallet } = require('../../services/swapApp')
+const app = require('../../swapApp')
+const { findSwap, swapView } = require('../../helpers')
+
+const flows = require('swap.flows')
 
 const SECRET = 'c0809ce9f484fdcdfb2d5aabd609768ce0374ee97a1a5618ce4cd3f16c00a078'
 

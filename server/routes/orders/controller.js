@@ -1,8 +1,17 @@
-const { status, sendStatus, findOrder, orderView } = require('../../services/helpers')
-const { app, wallet } = require('../../services/swapApp')
+const app = require('../../swapApp')
+
+const { findOrder, orderView } = require('../../helpers')
+const { wallet } = require('../../services')
+
 const Orders = app.services.orders
 
-let _order, _status, _swap
+const listMyOrders = (req, res) => {
+
+  orders = Orders.getMyOrders().filter( order => !!order )
+  orders = orders.map(orderView)
+
+  res.json(orders)
+}
 
 const listOrders = (req, res) => {
   orders = Orders.items.filter( order => !!order )
@@ -102,11 +111,6 @@ const acceptRequest = (req, res) => {
     console.log('peer', peer)
     console.log('accepting order', orderView(order))
 
-    // const swap = new Swap(order.id)
-    // console.log('swap', swap)
-    //
-    // _swap = swap
-
     order.swap = `/swaps/${order.id}/go`
 
     res.json(orderView(order))
@@ -116,6 +120,7 @@ const acceptRequest = (req, res) => {
 module.exports = {
   filterOrders,
   listOrders,
+  listMyOrders,
   requestedOrders,
 
   getOrder,

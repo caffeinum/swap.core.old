@@ -1,13 +1,4 @@
-const { sendStatus, swapToString, orderView } = require('../../services/helpers')
-const { app, wallet } = require('../../services/swapApp')
-
-const Orders = app.services.orders
-
-let orders
-
-const status = (req, res) => {
-  sendStatus(req, res)(_order)
-}
+const { wallet } = require('../../services')
 
 const getMe = async (req, res) => {
   res.json({
@@ -46,12 +37,4 @@ const withdraw = async (req, res) => {
   }
 }
 
-const listMyOrders = (req, res) => {
-
-  orders = Orders.getMyOrders().filter( order => !!order )
-  orders = orders.map(orderView)
-
-  res.json(orders)
-}
-
-module.exports = { balance, status, getMe, getWallet, withdraw, listMyOrders }
+module.exports = { balance, getMe, getWallet, withdraw }

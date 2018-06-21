@@ -6,7 +6,7 @@ const {
   filterOrders,
   requestedOrders,
 
-  orderStatus,
+  // orderStatus,
   getOrder,
   createOrder,
   deleteOrder,

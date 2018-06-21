@@ -1,7 +1,4 @@
-const swaps = require('./swaps')
-
-const bitcoin = require('./bitcoin')
-const ethereum = require('./ethereum')
+const { bitcoin, ethereum } = require('../instances')
 
 const SwapAuth = require('swap.auth')
 
@@ -58,4 +55,4 @@ class Wallet {
 
 }
 
-module.exports = Wallet
+module.exports = new Wallet()

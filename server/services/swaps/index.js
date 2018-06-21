@@ -5,10 +5,9 @@ const {
 
   token_swap_abi,
   token_contract_abi,
-} = require('./abi')
+} = require('../abi')
 
-const bitcoin = require('./bitcoin')
-const ethereum = require('./ethereum')
+const { bitcoin, ethereum } = require('../instances')
 
 module.exports = [
   new EthSwap({

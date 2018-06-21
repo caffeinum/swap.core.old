@@ -1,3 +1,5 @@
+const id = require('./id')
+
 const { LocalStorage } = require('node-localstorage')
 
 class Storage {
@@ -19,4 +21,6 @@ class Storage {
   }
 }
 
-module.exports = Storage
+console.log('[STORAGE] use id =', id)
+
+module.exports = new Storage('./storage/' + id)

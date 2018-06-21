@@ -1,10 +1,10 @@
 const { Router } = require('express')
 const router = new Router()
 
-const { status, balance, getMe, getWallet, withdraw, listMyOrders } = require('./controller')
+const { balance, getMe, getWallet, withdraw } = require('./controller')
+const { listMyOrders } = require('../orders/controller')
 
 router.get('/', getMe)
-router.get('/status', status)
 router.get('/balance', balance)
 router.get('/wallet', getWallet)
 router.get('/withdraw/:from', withdraw)
