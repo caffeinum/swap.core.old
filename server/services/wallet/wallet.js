@@ -1,4 +1,5 @@
 const { bitcoin, ethereum } = require('../instances')
+const id = require('../id')
 
 const SwapAuth = require('swap.auth')
 
@@ -11,6 +12,7 @@ class Wallet {
     this.ethereum = ethereum
     this.bitcoin = bitcoin
     this.config = {}
+    this.id = id
 
     this.auth = new SwapAuth({
       eth: null,
@@ -47,8 +49,9 @@ class Wallet {
 
   view() {
     return {
-      etherscan: `https://rinkeby.etherscan.io/address/${this.auth.accounts.eth.address}`,
-      blockchain: `https://testnet.blockchain.info/address/${this.auth.accounts.btc.getAddress()}`,
+      id: this.id,
+      'etherscan.io': `https://rinkeby.etherscan.io/address/${this.auth.accounts.eth.address}`,
+      'blockchain.info': `https://testnet.blockchain.info/address/${this.auth.accounts.btc.getAddress()}`,
       ...this.auth.getPublicData()
     }
   }

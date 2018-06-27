@@ -11,6 +11,9 @@ const {
   findSwap,
 } = require('./find')
 
+const {
+  removeSwap
+} = require('./swap')
 
 module.exports = {
   findOrder,
@@ -19,4 +22,5 @@ module.exports = {
   swapView,
   orderView,
   decodeFlow,
+  removeSwap,
 }
