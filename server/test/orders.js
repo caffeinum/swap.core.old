@@ -4,12 +4,13 @@ process.env.NODE_ENV = 'test'
 //Require the dev-dependencies
 let chai = require('chai')
 let chaiHttp = require('chai-http')
-let { app, server } = require('../app')
+let { app, server, listener } = require('../app')
 let should = chai.should()
 
 chai.use(chaiHttp)
 
-before((done) => setTimeout(done, 3000))
+before(async () => { await app.ready })
+after(async () => { await listener.close() })
 
 describe('Wallet', () => {
 
@@ -17,18 +18,20 @@ describe('Wallet', () => {
 
   describe('/me endpoint', () => {
 
-    it('should GET balance', (done) => {
+    it('should GET balance', async () => {
 
-      chai.request(server)
+      return chai.request(server)
         .get('/me/balance')
-        .end((err, res) => {
+        .then((err, res) => {
+
+        // .end((err, res) => {
           res.should.have.status(200)
           res.body.should.be.a('object')
           res.body.balances.should.not.be.eql(0)
-          
+
           console.log('body', res.body)
           // res.body.length.should.be.eql(0)
-          done()
+          return true
         })
 
     })
@@ -37,7 +40,9 @@ describe('Wallet', () => {
 
 describe('Orders', () => {
 
-  // beforeEach((done) => setTimeout(done, 3000))
+  beforeEach((done) => {
+    app.sync.then(done)
+  })
 
   describe('/orders endpoint', () => {
 
@@ -48,8 +53,37 @@ describe('Orders', () => {
         .end((err, res) => {
           res.should.have.status(200)
           res.body.should.be.a('array')
-          // res.body.length.should.be.eql(0);
+          res.body.length.should.not.be.eql(0)
           done()
+        })
+
+    })
+
+    it('should create new order', (done) => {
+      const order_example_json = {
+        "buyCurrency": "ETH",
+        "sellCurrency": "BTC",
+        "buyAmount": 0.07,
+        "sellAmount": 0.01
+      }
+
+      chai.request(server)
+        .post('/orders')
+        .send(order_example_json)
+        .end((err, res) => {
+          res.should.have.status(201)
+          res.body.should.be.a('object')
+          // res.body.id.should.not.be.eql(0)
+
+          chai.request(server)
+            .get('/orders')
+            .end((err, res) => {
+              res.should.have.status(200)
+              res.body.should.be.a('array')
+              res.body.length.should.not.be.eql(0)
+              done()
+            })
+
         })
 
     })
