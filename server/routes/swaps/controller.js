@@ -17,7 +17,16 @@ const resetSwap = (req, res) => {
     if ( !swap.flow )
       return res.status(404).json({ error: 'no swap' })
 
+    if ( swap.flow instanceof flows["BTC2ETH"] ) {
+      // ALICE
+    } else if ( swap.flow instanceof flows["ETH2BTC"] ) {
+      // BOB
+      // swap.flow.abort()
+    }
+
     removeSwap(swap)
+
+    res.json(swapView(swap))
   })
 }
 
@@ -29,19 +38,22 @@ const goSwap = (req, res) => {
     if ( swap.flow instanceof flows["BTC2ETH"] ) {
       swap.type = "BTC2ETH"
 
+      console.log('total steps', swap.flow.steps.length)
       swap.on('enter step', (step) => {
         console.log('enter step', step)
 
         if ( step == 1 ) swap.flow.submitSecret(SECRET)
 
         if ( step + 1 === swap.flow.steps.length ) {
-          // removeSwap(swap)
+          console.log('[FINISHED] tx', swap.flow.state.ethSwapWithdrawTransactionHash)
+          removeSwap(swap)
         }
       })
 
     } else if ( swap.flow instanceof flows["ETH2BTC"] ) {
       swap.type = "ETH2BTC"
 
+      console.log('total steps', swap.flow.steps.length)
       swap.on('enter step', (step) => {
         console.log('enter step', step)
 
@@ -51,7 +63,8 @@ const goSwap = (req, res) => {
 
 
         if ( step + 1 === swap.flow.steps.length ) {
-          // removeSwap(swap)
+          console.log('[FINISHED] tx', swap.flow.state.btcSwapWithdrawTransactionHash)
+          removeSwap(swap)
         }
       })
 
