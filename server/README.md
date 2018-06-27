@@ -19,13 +19,17 @@ To use your own wallet, place `.env` file in the root with your keys:
 
   `npm run server:build`
 
+  or
+
+  `npm run server:dev`
+
   and then
 
-  `npm run server`
+  `npm run pm2`
 
   or
 
-  `npm run server-dev`
+  `npm run pm2:dev`
 
 3. (Alice) Create order.
 
