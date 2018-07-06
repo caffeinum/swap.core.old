@@ -1,5 +1,6 @@
 const readline = require('./readline')
 const bot = require('./trade-bot')
+const HELP = require('./help')
 const { methods, decodeMethod, printHelp } = require('./methods')
 
 const printPromise = (promise) => {
@@ -31,6 +32,7 @@ const selectMethod = (input) => {
       case 'balance': return () => bot.runMethod('me/balance')
       case 'o':       return () => bot.getOrders()
       case 'orders':  return () => bot.getOrders()
+      case 'help':    return () => console.log(HELP)
 
       default:        return () => bot.runMethod(input)
     }
