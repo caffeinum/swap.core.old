@@ -48,10 +48,10 @@ const createOrder = (req, res) => {
     const { buyCurrency, sellCurrency, buyAmount, sellAmount, } = req.body
     const data = { buyCurrency, sellCurrency,  buyAmount, sellAmount, }
 
-    Orders.create(data)
+    const order = Orders.create(data)
     console.log('new order', data)
 
-    res.status(201).json(data)
+    res.status(201).json(orderView(order))
   } catch (err) {
     res.status(400).json({ error: 'cant create ' + err })
   }

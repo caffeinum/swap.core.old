@@ -289,6 +289,8 @@ class SwapOrders extends aggregation(ServiceInterface, Collection) {
         },
       },
     ])
+
+    return order
   }
 
   /**
