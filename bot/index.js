@@ -2,20 +2,14 @@ const readline = require('./readline')
 const bot = require('./trade-bot')
 const { methods, decodeMethod, printHelp } = require('./methods')
 
-const parse = (str) => {
-  try {
-    return JSON.parse(str)
-  } catch (err) {
-    return str
-  }
-}
-
 const printPromise = (promise) => {
+  if (!promise || !promise.then) return promise
+
   return promise
     .then(json => {
       console.log('Response:')
-      console.dir(parse(json))
-      return parse(json)
+      console.dir(json)
+      return json
     })
     .catch(({ name, message, ...etc }) => console.error({ name, message }))
 }

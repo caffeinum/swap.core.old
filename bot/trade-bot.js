@@ -2,6 +2,14 @@ const request = require('request-promise-native')
 
 const BASE_URL = 'http://localhost:1337'
 
+const parse = (str) => {
+  try {
+    return JSON.parse(str)
+  } catch (err) {
+    return str
+  }
+}
+
 class TradeBot {
   constructor() {
     this.orders = []
@@ -10,14 +18,21 @@ class TradeBot {
   getOrderId(id) {
     if ( !isNaN(parseInt(id)) ) {
       const index = parseInt(id)
+
+      if (index <= 0)
+        throw new Error(`Only positive indices allowed: ${index}`)
+
       const order = this.orders[index - 1]
 
-      id = order.id
-      console.log('found order', id)
-    }
+      if (!order)
+        throw new Error(`No such order: ${index}`)
 
-    if ( !id || id[0] != 'Q' )
-      throw new Error(`Wrong ID format: ${id}`)
+      id = order.id
+      console.log('found order', order)
+
+      if ( !id || id[0] != 'Q' )
+        throw new Error(`Wrong ID format: ${id}`)
+    }
 
     return id
   }
@@ -26,22 +41,21 @@ class TradeBot {
     if (!str) str = 'me'
 
     return request(`${BASE_URL}/${str}`)
-
-    // return await this.printPromise(reply)
+      .then(json => parse(json))
   }
 
   async postMethod(str, data) {
     if (!str) str = 'orders'
 
-    return request({
+    const options = {
       method: 'POST',
       url: `${BASE_URL}/${str}`,
       body: data,
       json: true
-    })
+    }
 
-
-    // return await this.printPromise(reply)
+    return request(options)
+      .then(json => parse(json))
   }
 
   async getOrders() {
@@ -64,7 +78,7 @@ class TradeBot {
       case 'create':  return this.createOrder(payload)
       case 'request': return this.requestOrder(payload)
       case 'accept':  return this.acceptOrder(payload)
-      case 'swap':    return this.runMethod(`swaps/${payload.id}/go`)
+      case 'swap':    return this.startSwap(payload)
       default:        return () => console.log('no method')
     }
   }
@@ -91,10 +105,15 @@ class TradeBot {
   }
 
   acceptOrder({ id }) {
-    // let { id } = payload
     id = this.getOrderId(id)
 
     return this.runMethod(`orders/${id}/accept`)
+  }
+
+  startSwap({ id }) {
+    id = this.getOrderId(id)
+
+    return this.runMethod(`swaps/${id}/go`)
   }
 }
 
