@@ -75,7 +75,7 @@ const deleteAllOrders = (req, res) => {
 
     })
 
-    res.status(200).end()
+    res.status(200).json({})
   } catch (err) {
     res.status(400).json({ error: 'cant delete ' + err })
   }

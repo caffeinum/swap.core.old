@@ -26,6 +26,7 @@ router.post('/', createOrder)
 
 // delete order(s)
 router.delete('/all', deleteAllOrders)
+router.get('/all/delete', deleteAllOrders)
 router.delete('/:id', deleteOrder)
 router.get('/:id/delete', deleteOrder)
 
