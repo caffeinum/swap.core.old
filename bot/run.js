@@ -2,8 +2,7 @@
 
 console.clear()
 const readline = require('./helpers/readline')
-const HELP = require('./helpers/help')
-const { methods, decodeMethod, printHelp } = require('./helpers/methods')
+const { HELP, FULL_HELP } = require('./helpers/help')
 
 const bot = require('./bot')
 
@@ -45,6 +44,7 @@ const selectMethod = (input) => {
       case 'o':       return () => bot.getOrders()
       case 'orders':  return () => bot.getOrders()
       case 'help':    return () => console.log(HELP)
+      case 'spec':    return () => console.log(FULL_HELP)
 
       default:        return () => bot.runMethod(input)
     }

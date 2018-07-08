@@ -21,6 +21,8 @@ const methods = [
   }
 ]
 
+const methods_list = methods.map( m => m.name )
+
 const decodeMethod = (action, payload) => {
   const method = methods.filter( m => m.name == action )[0]
 
@@ -46,6 +48,7 @@ const printHelp = (action) => {
 
 module.exports = {
   methods,
+  methods_list,
   decodeMethod,
   printHelp,
 }
