@@ -15,12 +15,12 @@ const parsePair = (str) => {
   const tokens = str.split('-')
   if (!tokens.length == 2) throw new Error(`ParseTickerError: Wrong tokens: ${str}`)
 
-  if (str in TRADE_TICKERS)
+  if (TRADE_TICKERS.includes(str))
     str = str
   else
     str = tokens.reverse().join('-')
 
-  if (!str in TRADE_TICKERS) throw new Error(`ParseTickerError: Ticker not found: ${str}`)
+  if (!TRADE_TICKERS.includes(str)) throw new Error(`ParseTickerError: Ticker not found: ${str}`)
 
   const MAIN = tokens[0].toUpperCase()
   const BASE = tokens[1].toUpperCase()
@@ -61,7 +61,7 @@ const createOrder = (ticker, type, price, amount) => {
   const { MAIN, BASE } = parsePair(ticker)
   if (!MAIN || !BASE) throw new Error(`CreateOrderError: No currency: ${main}-${base}`)
 
-  if (!type in [PAIR_ASK, PAIR_BID]) throw new Error(`CreateOrderError: Wrong order type: ${type}`)
+  if (![PAIR_ASK, PAIR_BID].includes(type)) throw new Error(`CreateOrderError: Wrong order type: ${type}`)
 
   const base = { currency: BASE, amount: price * amount }
   const main = { currency: MAIN, amount: amount }

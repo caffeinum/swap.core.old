@@ -11,7 +11,7 @@ class AlgoTrade {
   }
 
   fillOrders({ ticker, price, total }) {
-    if (!ticker.toUpperCase() in TRADE_TICKERS)
+    if (!TRADE_TICKERS.includes(ticker.toUpperCase()))
       throw new Error(`FillOrdersError: Wrong ticker: ${ticker}`)
 
     const price_num = parseFloat(price)
