@@ -8,6 +8,18 @@ const TRADE_TICKERS = [
   'NOXON-ETH',
 ]
 
+const parseTicker = (order) => {
+  const { buyCurrency: buy, sellCurrency: sell } = order
+
+  const BS = `${buy}-${sell}`.toUpperCase() // buys ETH, sells BTC, BID
+  const SB = `${sell}-${buy}`.toUpperCase() // sells ETH = ASK
+
+  if ( TRADE_TICKERS.includes(BS) ) return { ticker: BS, type: PAIR_BID }
+  if ( TRADE_TICKERS.includes(SB) ) return { ticker: SB, type: PAIR_ASK }
+
+  throw new Error(`ParseTickerError: No such tickers: ${BS},${SB}`)
+}
+
 const parsePair = (str) => {
   if (!str) throw new Error(`Empty string: ${str}`)
   if (typeof str != 'string') throw new Error(`ParseTickerError: Not a string: ${str}`)
@@ -77,8 +89,28 @@ const createOrder = (ticker, type, price, amount) => {
   }
 }
 
+const convertOrder = (order) => {
+  const { buyCurrency: buy, sellCurrency: sell, buyAmount, sellAmount } = order
+
+  const { ticker, type } = parseTicker(order)
+
+  // ASK means sellCurrency is ETH, then sell is main
+  const main_amount = parseFloat(type == PAIR_ASK ? sellAmount : buyAmount)
+  const base_amount = parseFloat(type == PAIR_ASK ? buyAmount  : sellAmount)
+
+  return {
+    ticker,
+    type,
+    price: base_amount / main_amount,
+    amount: main_amount,
+  }
+}
+
 module.exports = {
   createOrder,
+  parsePair,
+  parseTicker,
+  convertOrder,
   PAIR_ASK,
   PAIR_BID,
   TRADE_TICKERS,

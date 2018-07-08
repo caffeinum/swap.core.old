@@ -1,6 +1,8 @@
 const request = require('request-promise-native')
+const asciichart = require ('asciichart')
 
 const AlgoTrade = require('./algo')
+const { convertOrder, TRADE_TICKERS } = require('./trade')
 
 const BASE_URL = 'http://localhost:1337'
 
@@ -78,12 +80,13 @@ class TradeBot {
     console.log('Calling', name, payload)
 
     switch (name) {
-      case 'create':  return this.createOrder(payload)
-      case 'request': return this.requestOrder(payload)
-      case 'accept':  return this.acceptOrder(payload)
-      case 'swap':    return this.startSwap(payload)
-      case 'fill':    return this.fillOrders(payload)
-      default:        return () => console.log('no method')
+      case 'create':    return this.createOrder(payload)
+      case 'request':   return this.requestOrder(payload)
+      case 'accept':    return this.acceptOrder(payload)
+      case 'swap':      return this.startSwap(payload)
+      case 'fill':      return this.fillOrders(payload)
+      case 'plotbook':  return this.plotOrderBook(payload)
+      default:        return Promise.resolve('no method')
     }
   }
 
@@ -128,6 +131,46 @@ class TradeBot {
 
     return Promise.all([deletion, ...saving])
   }
+
+  async getBAList(payload) {
+    const { ticker: raw_ticker } = payload
+
+    const ticker = raw_ticker.toUpperCase()
+
+    if ( !TRADE_TICKERS.includes(ticker) )
+      throw new Error(`PlotOrdersError: No ticker: ${ticker}`)
+
+    const orders = await this.getOrders()
+
+    const filtered = orders
+      .map( o => convertOrder(o) )
+      .filter( o => o.ticker == ticker)
+
+    const sorted = filtered
+      .sort( (o1, o2) => o1.price - o2.price )
+
+    return sorted
+  }
+
+  async plotOrderBook(payload) {
+    const sorted = await this.getBAList(payload)
+
+    const lowest_price = sorted.slice(0,1).pop().price * 0.9
+    const highest_price = sorted.slice(-1).pop().price * 1.1
+
+    const breakPrice = (price) =>
+      Math.floor(79 * (price - lowest_price) / (highest_price - lowest_price))
+
+    const series = sorted
+      .reduce( (acc, elem) => {
+        const index = breakPrice(elem.price)
+        acc[ index ] += elem.amount
+        return acc
+      }, Array(80).fill(0))
+
+    return asciichart.plot(series, { height: 30 })
+  }
+
 }
 
 module.exports = new TradeBot()

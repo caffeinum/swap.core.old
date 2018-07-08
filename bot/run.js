@@ -3,13 +3,15 @@
 console.clear()
 const readline = require('./helpers/readline')
 const { HELP, FULL_HELP } = require('./helpers/help')
+const { methods_list, decodeMethod, printHelp } = require('./helpers/methods')
 
 const bot = require('./bot')
 
 const totals_info = (json) => {
-  if (Array.isArray(json))  return `Total: ${json.length}`
-  else if (json)            return `Keys: ${Object.keys(json)}`
-  else                      return ``
+  if (Array.isArray(json))          return `Total: ${json.length}`
+  else if (typeof json == 'string') return `String length: ${json.length}`
+  else if (json)                    return `Keys: ${Object.keys(json)}`
+  else return ``
 }
 
 const printPromise = (promise) => {
@@ -18,7 +20,11 @@ const printPromise = (promise) => {
   return promise
     .then(json => {
       console.log('Response:')
-      console.dir(json)
+      if (typeof json == 'string')
+        console.log(json)
+      else
+        console.dir(json)
+
       console.log(totals_info(json))
 
       return json
@@ -32,7 +38,7 @@ const selectMethod = (input) => {
 
   if (payload == 'help') {
     return () => console.log(printHelp(action))
-  } else if ( payload.length ) {
+  } else if ( methods_list.includes(action) || payload.length ) {
     const vars = decodeMethod(action, payload)
 
     return () => bot.callMethod(action, vars)

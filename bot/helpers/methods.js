@@ -18,7 +18,11 @@ const methods = [
   {
     name: 'fill',
     tokens: ['ticker', 'price', 'total']
-  }
+  },
+  {
+    name: 'plotbook',
+    tokens: ['ticker']
+  },
 ]
 
 const methods_list = methods.map( m => m.name )

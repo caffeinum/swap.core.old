@@ -44,9 +44,9 @@ class AlgoTrade {
     // TODO fees
     const orders = [
       ...Array(10).fill(null).map( (e, index) =>
-          createOrder(ticker, PAIR_BID, bid_price * (100 - index) / 100, amount)),
+          createOrder(ticker, PAIR_BID, bid_price * (100 - index) / 100, amount * (index+1))),
       ...Array(10).fill(null).map( (e, index) =>
-          createOrder(ticker, PAIR_ASK, ask_price * (100 + index) / 100, amount)),
+          createOrder(ticker, PAIR_ASK, ask_price * (100 + index) / 100, amount * (index+1))),
     ]
 
     return orders
