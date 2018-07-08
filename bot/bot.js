@@ -1,5 +1,7 @@
 const request = require('request-promise-native')
 
+const AlgoTrade = require('./algo')
+
 const BASE_URL = 'http://localhost:1337'
 
 const parse = (str) => {
@@ -13,6 +15,7 @@ const parse = (str) => {
 class TradeBot {
   constructor() {
     this.orders = []
+    this.algo = new AlgoTrade()
   }
 
   getOrderId(id) {
@@ -79,6 +82,7 @@ class TradeBot {
       case 'request': return this.requestOrder(payload)
       case 'accept':  return this.acceptOrder(payload)
       case 'swap':    return this.startSwap(payload)
+      case 'fill':    return this.fillOrders(payload)
       default:        return () => console.log('no method')
     }
   }
@@ -114,6 +118,15 @@ class TradeBot {
     id = this.getOrderId(id)
 
     return this.runMethod(`swaps/${id}/go`)
+  }
+
+  fillOrders(payload) {
+    const orders = this.algo.fillOrders(payload)
+
+    const deletion = this.runMethod(`orders/all/delete`)
+    const saving = orders.map(data => this.postMethod('orders', data))
+
+    return Promise.all([deletion, ...saving])
   }
 }
 

@@ -14,6 +14,10 @@ const methods = [
   {
     name: 'swap',
     tokens: ['id']
+  },
+  {
+    name: 'fill',
+    tokens: ['ticker', 'price', 'total']
   }
 ]
 
@@ -23,7 +27,7 @@ const decodeMethod = (action, payload) => {
   if (!method) throw new Error(`No method: ${action}`)
 
   if ( payload.length != method.tokens.length )
-    throw new Error(`Wrong length: ${payload}, ${method.tokens}`)
+    throw new Error(`Wrong length: [${payload}] / [${method.tokens}]`)
 
   return method.tokens.reduce((acc, token, index) => {
     acc[token] = payload[index]
