@@ -11,10 +11,10 @@ const { bitcoin, ethereum } = require('../instances')
 
 module.exports = [
   new EthSwap({
-      address: '0xdbC2395f753968a93465487022B0e5D8730633Ec',
-      abi: eth_swap_abi,
-      fetchBalance: (address) => ethereum.fetchBalance(address),
-    }),
+    address: '0xdbC2395f753968a93465487022B0e5D8730633Ec',
+    abi: eth_swap_abi,
+    fetchBalance: (address) => ethereum.fetchBalance(address),
+  }),
   new EthTokenSwap({
     address: '0xBA5c6DC3CAcdE8EA754e47c817846f771944518F',
     name: 'NOXON',
