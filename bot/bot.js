@@ -2,7 +2,7 @@ const request = require('request-promise-native')
 const asciichart = require ('asciichart')
 
 const AlgoTrade = require('./algo')
-const { convertOrder, TRADE_TICKERS } = require('./trade')
+const { convertOrder, TRADE_TICKERS, PAIR_ASK, PAIR_BID } = require('./trade')
 
 const BASE_URL = 'http://localhost:1337'
 
@@ -86,6 +86,8 @@ class TradeBot {
       case 'swap':      return this.startSwap(payload)
       case 'fill':      return this.fillOrders(payload)
       case 'plotbook':  return this.plotOrderBook(payload)
+      case 'plotbids':  return this.plotBids(payload)
+      case 'plotasks':  return this.plotAsks(payload)
       default:        return Promise.resolve('no method')
     }
   }
@@ -155,6 +157,26 @@ class TradeBot {
   async plotOrderBook(payload) {
     const sorted = await this.getBAList(payload)
 
+    return this.plotPrices(sorted)
+  }
+
+  async plotBids(payload) {
+    const sorted = await this.getBAList(payload)
+
+    const bids = sorted.filter( o => o.type == PAIR_BID )
+
+    return this.plotPrices(bids)
+  }
+
+  async plotAsks(payload) {
+    const sorted = await this.getBAList(payload)
+
+    const asks = sorted.filter( o => o.type == PAIR_ASK )
+
+    return this.plotPrices(asks)
+  }
+
+  async plotPrices(sorted) {
     const lowest_price = sorted.slice(0,1).pop().price * 0.9
     const highest_price = sorted.slice(-1).pop().price * 1.1
 

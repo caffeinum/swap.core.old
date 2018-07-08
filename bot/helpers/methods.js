@@ -23,6 +23,14 @@ const methods = [
     name: 'plotbook',
     tokens: ['ticker']
   },
+  {
+    name: 'plotbids',
+    tokens: ['ticker']
+  },
+  {
+    name: 'plotasks',
+    tokens: ['ticker']
+  },
 ]
 
 const methods_list = methods.map( m => m.name )
