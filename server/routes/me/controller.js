@@ -11,6 +11,11 @@ const getWallet = (req, res) => {
   res.json(wallet.view())
 }
 
+const getWalletDetailed = async (req, res) => {
+  // wallet.detailedView().then((view) => res.json(view))
+  res.json(await wallet.detailedView())
+}
+
 const balance = async (req, res) => {
   let balances = await wallet.getBalance()
 
@@ -37,4 +42,4 @@ const withdraw = async (req, res) => {
   }
 }
 
-module.exports = { balance, getMe, getWallet, withdraw }
+module.exports = { balance, getMe, getWallet, getWalletDetailed, withdraw }

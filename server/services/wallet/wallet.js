@@ -56,6 +56,25 @@ class Wallet {
     }
   }
 
+  async detailedView() {
+    const gasPrice = await ethereum.core.eth.getGasPrice()
+    const gasLimit = 3e6 // TODO sync with EthSwap.js
+    const btcFee = 15000 // TODO sync with BtcSwap.js and bitcoin instance
+
+    return {
+      eth: {
+        gasPrice,
+        gasLimit,
+        // ...ethereum.core,
+      },
+      btc: {
+        fee: btcFee,
+        // ...bitcoin.core,
+      },
+      wallet: this.view()
+    }
+  }
+
 }
 
 module.exports = new Wallet()
