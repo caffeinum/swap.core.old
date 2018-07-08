@@ -3,6 +3,8 @@ const router = new Router()
 
 const {
   listOrders,
+  listMyOrders,
+  listOthersOrders,
   filterOrders,
   requestedOrders,
 
@@ -18,6 +20,8 @@ const {
 
 // order list
 router.get('/', listOrders)
+router.get('/my', listMyOrders)
+router.get('/others', listOthersOrders)
 router.get('/search', filterOrders)
 router.get('/requests', requestedOrders)
 

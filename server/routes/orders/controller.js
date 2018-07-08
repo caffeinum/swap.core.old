@@ -13,6 +13,14 @@ const listMyOrders = (req, res) => {
   res.json(orders)
 }
 
+const listOthersOrders = (req, res) => {
+  orders = Orders.items.filter( order => !!order )
+  orders = orders.filter( order => !order.isMy )
+  orders = orders.map(orderView)
+
+  res.json(orders)
+}
+
 const listOrders = (req, res) => {
   orders = Orders.items.filter( order => !!order )
   orders = orders.map(orderView)
@@ -121,6 +129,7 @@ module.exports = {
   filterOrders,
   listOrders,
   listMyOrders,
+  listOthersOrders,
   requestedOrders,
 
   getOrder,
