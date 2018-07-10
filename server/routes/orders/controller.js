@@ -39,7 +39,7 @@ const filterOrders = (req, res) => {
 }
 
 const requestedOrders = (req, res) => {
-  let orders = Orders.getMyOrders()
+  orders = Orders.items.filter( order => !!order )
 
   orders = orders.filter( ({ requests }) => requests.length )
   orders = orders.map(orderView)
