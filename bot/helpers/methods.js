@@ -31,6 +31,10 @@ const methods = [
     name: 'plotasks',
     tokens: ['ticker']
   },
+  {
+    name: 'printbook',
+    tokens: ['ticker']
+  },
 ]
 
 const methods_list = methods.map( m => m.name )

@@ -6,6 +6,11 @@ const { convertOrder, TRADE_TICKERS, PAIR_ASK, PAIR_BID } = require('./trade')
 
 const BASE_URL = 'http://localhost:1337'
 
+const print = (bas) => bas
+  .map(({ticker, type, price, amount}, index) =>
+    `${index+1}: ${ticker} ${type == PAIR_BID ? 'buy' : 'sell'} at ${price} a: ${amount}`)
+  .join('\n')
+
 const parse = (str) => {
   try {
     return JSON.parse(str)
@@ -88,6 +93,7 @@ class TradeBot {
       case 'plotbook':  return this.plotOrderBook(payload)
       case 'plotbids':  return this.plotBids(payload)
       case 'plotasks':  return this.plotAsks(payload)
+      case 'printbook':  return this.printOrderBook(payload)
       default:        return Promise.resolve('no method')
     }
   }
@@ -191,6 +197,12 @@ class TradeBot {
       }, Array(80).fill(0))
 
     return asciichart.plot(series, { height: 30 })
+  }
+
+  async printOrderBook(payload) {
+    const sorted = await this.getBAList(payload)
+
+    return print(sorted)
   }
 
 }
