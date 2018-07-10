@@ -28,15 +28,13 @@ const findOrder = (app) => (req, res, next) => {
 }
 
 const findSwap = (app) => (req, res, next) => {
-  findOrder(app)(req, res, (order) => {
-    console.log('order', orderView(order))
-    if (!order.isProcessing) return res.status(400).json({ error: 'order is not processing' })
 
-    const Flow = decodeFlow(order)
-    const swap = new Swap(order.id, Flow)
+  let id = req.params.id
 
-    next && next(swap)
-  })
+  console.log('id', id)
+
+  const swap = new Swap(id)
+  next && next(swap)
 }
 
 module.exports = {
