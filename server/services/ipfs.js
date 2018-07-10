@@ -11,6 +11,7 @@ const ipfs_config = {
     Addresses: {
       Swarm: [
         // '/ip4/127.0.0.1/tcp/9090/ws/p2p-webrtc-star',
+        '/dns4/discovery.libp2p.array.io/tcp/9091/wss/p2p-websocket-star',
         '/dns4/star.wpmix.net/tcp/443/wss/p2p-websocket-star',
       ]
     }
