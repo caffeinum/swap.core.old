@@ -29,7 +29,8 @@ module.exports = {
     {
       name            : 'api',
       script          : './server/app.js',
-      args            : '',
+      args            : '9118705277939374',
+      node_args       : '--inspect=1037',
       env             : {
         PORT : 1337,
       }
