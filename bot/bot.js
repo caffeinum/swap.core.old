@@ -38,7 +38,6 @@ class TradeBot {
         throw new Error(`No such order: ${index}`)
 
       id = order.id
-      console.log('found order', order)
 
       if ( !id || id[0] != 'Q' )
         throw new Error(`Wrong ID format: ${id}`)
