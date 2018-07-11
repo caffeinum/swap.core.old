@@ -24,7 +24,7 @@ class AlgoTrade {
     if ( isNaN(total_amount) || total_amount === 0 )
       throw new Error(`FillOrdersError: Bad total amount: ${total}`)
 
-    const amount = total_amount / 20
+    const amount = total_amount / 15
 
     // console.log('amount', amount)
 
@@ -43,10 +43,11 @@ class AlgoTrade {
     // ASK = SELL ETH above given price
     // TODO fees
     const orders = [
-      ...Array(10).fill(null).map( (e, index) =>
-          createOrder(ticker, PAIR_BID, bid_price * (100 - index) / 100, amount)),
-      ...Array(10).fill(null).map( (e, index) =>
-          createOrder(ticker, PAIR_ASK, ask_price * (100 + index) / 100, amount)),
+      ...Array(5).fill(null).map( (e, index) =>
+          createOrder(ticker, PAIR_BID, bid_price, amount * (index + 1))),
+          // createOrder(ticker, PAIR_BID, bid_price * (100 - index) / 100, amount)),
+      ...Array(5).fill(null).map( (e, index) =>
+          createOrder(ticker, PAIR_ASK, ask_price, amount * (index + 1))),
     ]
 
     return orders
