@@ -4,7 +4,7 @@ const asciichart = require ('asciichart')
 const AlgoTrade = require('./algo')
 const { convertOrder, TRADE_TICKERS, PAIR_ASK, PAIR_BID } = require('./trade')
 
-const BASE_URL = 'http://localhost:1337'
+const BASE_URL = 'localhost:1337'
 
 const print = (bas) => bas
   .map(({ticker, type, price, amount}, index) =>
@@ -20,9 +20,10 @@ const parse = (str) => {
 }
 
 class TradeBot {
-  constructor() {
+  constructor(url) {
     this.orders = []
     this.algo = new AlgoTrade()
+    this.url = `http://${url || BASE_URL}`
   }
 
   getOrderId(id) {
@@ -49,7 +50,7 @@ class TradeBot {
   async runMethod(str) {
     if (!str) str = 'me'
 
-    return request(`${BASE_URL}/${str}`)
+    return request(`${this.url}/${str}`)
       .then(json => parse(json))
   }
 
@@ -58,7 +59,7 @@ class TradeBot {
 
     const options = {
       method: 'POST',
-      url: `${BASE_URL}/${str}`,
+      url: `${this.url}/${str}`,
       body: data,
       json: true
     }
@@ -206,4 +207,4 @@ class TradeBot {
 
 }
 
-module.exports = new TradeBot()
+module.exports = TradeBot

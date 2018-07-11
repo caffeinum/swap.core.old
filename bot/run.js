@@ -5,7 +5,11 @@ const readline = require('./helpers/readline')
 const { HELP, FULL_HELP } = require('./helpers/help')
 const { methods_list, decodeMethod, printHelp } = require('./helpers/methods')
 
-const bot = require('./bot')
+const url = process.argv[2]
+const TradeBot = require('./bot')
+const bot = new TradeBot(url)
+
+console.log(`Using url = ${bot.url}`)
 
 const totals_info = (json) => {
   if (Array.isArray(json))          return `Total: ${json.length}`
