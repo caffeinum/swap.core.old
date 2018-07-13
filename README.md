@@ -10,6 +10,33 @@ Swap.online is a decentralized exchange protocol (DEP) for crosschain atomic swa
 
 tags: HTLC, atomic swap, javascript, browser, crypto, bitcoin, ethereum, erc20
 
+## NPM
+
+Install from github:
+```
+npm i --save caffeinum/swap.core
+```
+
+Use in your project:
+
+```js
+
+const swap = require('swap.core')
+
+const SwapAuth = swap.auth
+const SwapRoom = swap.room
+const SwapOrders = swap.orders
+
+const { EthSwap, EthTokenSwap, BtcSwap } = swap.swaps
+const { ETH2BTC, BTC2ETH, ETHTOKEN2BTC, BTC2ETHTOKEN } = swap.flows
+
+const { constants, util } = swap
+const SwapApp = swap.app
+
+SwapApp.setup({...})
+// for detailed config explanation look in the main repo 
+
+```
 
 ## Usage
 
