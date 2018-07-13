@@ -14,7 +14,7 @@ tags: HTLC, atomic swap, javascript, browser, crypto, bitcoin, ethereum, erc20
 
 Install from github:
 ```
-npm i --save caffeinum/swap.core
+npm install --save caffeinum/swap.core#npm
 ```
 
 Use in your project:
@@ -34,7 +34,7 @@ const { constants, util } = swap
 const SwapApp = swap.app
 
 SwapApp.setup({...})
-// for detailed config explanation look in the main repo 
+// for detailed config explanation look in the main repo
 
 ```
 
