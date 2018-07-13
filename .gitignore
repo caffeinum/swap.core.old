@@ -14,4 +14,3 @@ node_modules
 examples/react/swap
 examples/vanilla/swap
 umd
-lib
