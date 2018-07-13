@@ -1,7 +1,7 @@
 {
-  "name": "swap-core",
+  "name": "swap.core",
   "version": "1.0.0",
-  "description": "Swap Core",
+  "description": "Swap Core - Swap DEP JS implementation",
   "homepage": "https://github.com/pavelivanov/swap",
   "author": "Pavel Ivanov <grammka@gmail.com> (https://github.com/pavelivanov)",
   "license": "MIT",
@@ -9,7 +9,7 @@
     "type": "git",
     "url": "git+https://github.com/pavelivanov/swap.git"
   },
-  "main": "lib/index.js",
+  "main": "index.js",
   "scripts": {
     "server": "npm run server:build && node server/app.js",
     "server:dev": "rimraf ./server/lib && babel -w ./src --out-dir ./server/lib --plugins=add-module-exports",
